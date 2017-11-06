@@ -72,9 +72,10 @@ def init(names=None):
                 current_ast=json.load(current_tree) 
                 
                 for i, ch in enumerate(current_ast["children"]):
-                    print("Line: %d" % i)
+                    print("*-----------Line: %d---------*" % i)
                     descend(ch)
-                print('Tainted list: '+str(tainted))
+                    print("*---------------------------*")
+                print('\nTainted variables: '+str(tainted))
                 #cleanup for next file
                 
                 return
@@ -127,9 +128,9 @@ def descend(child):
         else:
             #switch funciton call here
             routes=goto(child["kind"])
-            print("KIND "+child['kind'])
+            #print("KIND "+child['kind'])
             tainted_varnames=[]
-            print("ROUTES"+str(routes))
+            #print("ROUTES"+str(routes))
             for route in routes:
                 #might be a list of arguments #like in a function call;
                 #for each argument we descend;
@@ -148,6 +149,19 @@ def descend(child):
 
     return None
 
+def taint_origin(var):
+    global tainted, entry_point_names
+
+    for n in entry_point_names:   
+        #print(str(tainted)) 
+        
+        if n in '$'+var:
+            return var
+
+    for v in tainted[var]:
+        return taint_origin(v)
+    
+
 def is_entry_point(s):
     global entry_point_names
     for e in entry_point_names:
@@ -155,19 +169,37 @@ def is_entry_point(s):
             return 1
     return 0
 
-def is_sink(id):
-    for p in patterns:
-        for sink in p.sinks:
-            if id == sink:
-                return 1
-    return 0
+def is_sink(origin, id):
+    if None not in (origin,id):
+        found = 0
+        for p in patterns:
+            #has to be in same pattern
+            found = 0
+            for sink in p.sinks:
+                if id == sink:
+                    found = found + 1
+            for e in p.entry:
+                if e in '$'+origin:
+                    found = found + 1
+            if found == 2:
+                return True
+    return False
 
-def is_untaint(id):
-    for p in patterns:
-        for u in p.untaint_funcs:
-            if id == u:
-                return 1
-    return 0    
+def is_untaint(origin, id):
+    if None not in (origin,id):
+        found = 0
+        for p in patterns:
+            #has to be in same pattern
+            found = 0
+            for u in p.untaint_funcs:
+                if id == u:
+                    found = found + 1
+            for e in p.entry:
+                if e in '$'+origin:
+                    found = found + 1
+            if found == 2:
+                return True
+    return False
 
 #returns list of cascaded tainted values
 def bin_handle(child):
@@ -176,7 +208,6 @@ def bin_handle(child):
     tmp=[]
     lval = descend(child['left'])     
     rval = descend(child['right'])
-    
     
     #untaint function calls block propagation of taint values and return None
     if rval is not None:
@@ -192,20 +223,21 @@ def bin_handle(child):
     return ret
 
 def if_handle(child):
-    bin = descend(child['test'])
-    if bin is not None:
-        bin = bin if isinstance(bin, list) else [bin]
-        for v in bin:
+    test = descend(child['test'])
+    if test is not None:
+        test = test if isinstance(test, list) else [test]
+        for v in test:
             if v and (v in tainted or is_entry_point(v)):
-                body_children = child['body']['children']
-                alternate_children = child['alternate']['children']
-                for ch in body_children+alternate_children:
-                    descend(ch)
+                print("If cicle has been compromised through user input!")
+
+    body_children = child['body']['children']
+    alternate_children = child['alternate']['children']
+    for ch in body_children+alternate_children:
+        descend(ch)
                     
-    print("IFBIN"+str(bin))
+    print("IFBIN"+str(test))
     #for i, ch in enumerate(child["children"]):
         #descend(ch)
-
     return None
 
 def encapsed_handle(child):
@@ -215,13 +247,14 @@ def encapsed_handle(child):
         val = descend(i)
         if val:
             ret.append(val)
-    print('encapsed ' + str(ret))
+    
     return ret
 
 def call_handle(child):
     id = descend(child['what'])
     args = child['arguments']
-    
+    original_entry = None
+
     argv = []
     for arg in args:
         temp = descend(arg)
@@ -230,24 +263,29 @@ def call_handle(child):
         else:
             argv.append(temp)
 
-    if is_sink(id):
-        vals=[]
-        for v in argv:
-            if v in tainted:
-                vals.append(v)
-        if len(vals) > 0:
-            print('Sensitive sink [%s] is accepting a tainted value/s [%s]!' % (id, str(vals)))
-            #return vals
     
-    if is_untaint(id):
-        if argv[0] in tainted:
-            
+    if argv[0] is not None:
+        original_entry = taint_origin(argv[0])
+
+    #is argv[0] tainted
+    if argv[0] in tainted:
+        #is this a sink that is vulnerable to it's arg's original taint value? (i.e.: _GET, ..etc)
+        if is_sink(original_entry, id):
+            tainted_args=[]
+            for v in argv:
+                if v in tainted:
+                    tainted_args.append(v)
+            if len(tainted_args) > 0:
+                print('Sensitive sink [%s] is accepting a tainted value/s [%s]!' % (id, str(tainted_args)))
+                #return vals
+                
+        #does function untaint?
+        elif is_untaint(original_entry, id):
             # untaint function calls block propagation of 
             # taint values and return None
             return None
         return [argv[0]]
 
-    #TODO args    
     return [argv[0]]
 
 def assign_handle(child):
@@ -277,7 +315,7 @@ def assign_handle(child):
             tainted[lval[0]] = tainted_by
         return lval
 
-            
+
         del tainted[lval[0]]
 
     return lval

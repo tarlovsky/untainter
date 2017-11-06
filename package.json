@@ -1,0 +1,32 @@
+{
+  "name": "codep",
+  "version": "1.0.0",
+  "description": "SSof Project Group 20",
+  "main": "index.js",
+  "dependencies": {
+    "php-parser": "^2.0.7"
+  },
+  "devDependencies": {},
+  "scripts": {
+    
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tarlovsky/codep.git"
+  },
+  "keywords": [
+    "SSof",
+    "Ist",
+    "Php",
+    "vulnerabilities",
+    "Static",
+    "Dynamic",
+    "Analisys"
+  ],
+  "author": "Grupo 20 Ssof 2017/2018",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tarlovsky/codep/issues"
+  },
+  "homepage": "https://github.com/tarlovsky/codep#readme"
+}

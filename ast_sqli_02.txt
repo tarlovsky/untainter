@@ -1,0 +1,155 @@
+{
+	"kind": "program",
+	"children": [
+		{
+			"kind": "assign",
+			"operator": "=",
+			"left": {
+				"kind": "variable",
+				"name": "u",
+				"byref": false,
+				"curly": false
+			},
+			"right": {
+				"kind": "offsetlookup",
+				"what": {
+					"kind": "variable",
+					"name": "_GET",
+					"byref": false,
+					"curly": false
+				},
+				"offset": {
+					"kind": "string",
+					"value": "username",
+					"isDoubleQuote": false
+				}
+			}
+		},
+		{
+			"kind": "assign",
+			"operator": "=",
+			"left": {
+				"kind": "variable",
+				"name": "u",
+				"byref": false,
+				"curly": false
+			},
+			"right": {
+				"kind": "parenthesis",
+				"inner": {
+					"kind": "bin",
+					"type": ".",
+					"left": {
+						"kind": "variable",
+						"name": "ul",
+						"byref": false,
+						"curly": false
+					},
+					"right": {
+						"kind": "assign",
+						"operator": "=",
+						"left": {
+							"kind": "variable",
+							"name": "ur",
+							"byref": false,
+							"curly": false
+						},
+						"right": {
+							"kind": "variable",
+							"name": "u",
+							"byref": false,
+							"curly": false
+						}
+					}
+				}
+			}
+		},
+		{
+			"kind": "assign",
+			"operator": "=",
+			"left": {
+				"kind": "variable",
+				"name": "q",
+				"byref": false,
+				"curly": false
+			},
+			"right": {
+				"kind": "bin",
+				"type": ".",
+				"left": {
+					"kind": "bin",
+					"type": ".",
+					"left": {
+						"kind": "string",
+						"value": "SELECT pass FROM users WHERE user='",
+						"isDoubleQuote": true
+					},
+					"right": {
+						"kind": "variable",
+						"name": "u",
+						"byref": false,
+						"curly": false
+					}
+				},
+				"right": {
+					"kind": "string",
+					"value": "'",
+					"isDoubleQuote": true
+				}
+			}
+		},
+		{
+			"kind": "call",
+			"what": {
+				"kind": "identifier",
+				"resolution": "uqn",
+				"name": "mysql_query"
+			},
+			"arguments": [
+				{
+					"kind": "call",
+					"what": {
+						"kind": "identifier",
+						"resolution": "uqn",
+						"name": "mysql_real_escape"
+					},
+					"arguments": [
+						{
+							"kind": "bin",
+							"type": ".",
+							"left": {
+								"kind": "call",
+								"what": {
+									"kind": "identifier",
+									"resolution": "uqn",
+									"name": "my_func"
+								},
+								"arguments": [
+									{
+										"kind": "variable",
+										"name": "q",
+										"byref": false,
+										"curly": false
+									}
+								]
+							},
+							"right": {
+								"kind": "variable",
+								"name": "u",
+								"byref": false,
+								"curly": false
+							}
+						}
+					]
+				},
+				{
+					"kind": "variable",
+					"name": "koneksi",
+					"byref": false,
+					"curly": false
+				}
+			]
+		}
+	],
+	"errors": []
+}

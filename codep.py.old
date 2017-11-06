@@ -1,0 +1,324 @@
+#!/usr/bin/python
+
+import sys
+import re
+try:
+    import Queue as Q # versions prior to 3
+except ImportError:
+    import queue as Q
+
+PATTERNS_FNAME="lookup_list"
+PHP_VARS_REG='(\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)'
+PHP_VAR_CHARS='[a-z][A-Z][0-9]'
+PHP_CONCAT_OPS_1="\.|\+|\*|\/"
+
+#need coma for this
+# (2, '$b', ' str_cat($b = $_GET["vuln"]), htmlentities($b)')
+PHP_CONCAT_OPS=('.', '+', ' ', ',')
+OPERATORS='-+*/|~^&'
+#snippet files to clean
+snippet_files=[]
+EQUALS_CHAR='='
+#patterns must be
+patterns=[]
+
+class Pattern:
+    def __init__(self, name, entry=None, untaint_funcs=None, sinks=None):
+        self.name=name
+        #shallow copy all arrays to prevent outside modification
+        self.entry=entry[:]
+        self.untaint_funcs=untaint_funcs[:]
+        self.sinks=sinks[:]
+    #def __str__(self):
+        #print("[*]"+self.name.join(map(str,self.entry)).join(map(str,self.untaint_funcs)).join(map(str,self.sinks)))
+        #print(map(str,self.entry))
+
+
+#We call parse for each FILE
+def parse(lines=None):
+    global patterns, PHP_VARS_REG, PHP_CONCAT_OPS, PHP_CONCAT_OPS_1
+    if lines is None:
+        lines=[]
+    lr=[]
+    
+    def get_valid_lvalue(s):
+        global OPERATORS
+        retval=''
+        if len(s) <= 1:
+            return 0
+        s=s.strip()
+        preg=re.compile("[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*")
+        
+        for i, ch in enumerate(reversed(s)):
+            #no match with legal php variable chars
+            if preg.match(ch) == None:
+                
+                #allow this '$a  + '
+                #and this '$a[] +'
+                if ch in (" ", "[" , "]") and len(retval) == 0:
+                    continue
+               
+                #allow first characters to be operators
+                #$b-=1
+                #$b+=1 
+                #$etc
+                if i == 0 and ch in OPERATORS:
+                    continue
+
+                if ch == '$' and len(retval) > 0:
+                    retval+=ch
+                    #if it doesnt match it can only be $                   
+                    return retval[::-1]
+                else:
+                    return 0
+            retval+=ch
+        #failsafe return
+        return 0
+    
+    
+    # getting all l and r values            
+    for line in lines:
+
+        #scan for lr assignments        
+        for equals_pos, char in enumerate(reversed(line[1])):
+            
+            lparen_count, rparen_count = 0, 0
+            #valid_lvalue must be php assignable $variable
+            #line[1][:-equals_pos-1] gives value to the left of equals
+            lval = get_valid_lvalue( line[1][:-equals_pos-1] )
+            rval=''
+            if char == EQUALS_CHAR and lval:
+                line_len=len(line[1])
+                #lval=line[1][ line[1][:-equals_pos].rfind('$'):-equals_pos-1].strip()
+                #rval=''
+
+                #right value might be inside parenthesis
+                #like so: ($b=($b-($b=1)))
+                #right value might be concatenated like so
+                i = line_len - equals_pos - 1
+                while i < line_len - 1:
+                    i+=1
+
+                    if line[1][i] == ')': 
+                        rparen_count+=1
+                        if lparen_count == 0 or lparen_count == rparen_count:
+                            
+                            if lparen_count != 0 and i < line_len - 1 and line[1][i+1] in PHP_CONCAT_OPS:
+                                lparen_count=rparen_count=0
+                                continue
+                            
+                            rval=line[1][-equals_pos:i+1]
+                            i = line_len - 1
+                            lparen_count, rparen_count = 0,0
+                            
+
+                    elif line[1][i] == '(': 
+                        lparen_count+=1
+
+                    elif i == len(line[1])-1:
+                        rval=line[1][-equals_pos:].strip()
+                    
+                    #print(line[1][i], lparen_count, rparen_count)
+                
+                lr.append((line[0],lval,rval))
+             
+
+    def get_line(l):
+        for i in range(len(lines)):
+            if lines[i][0] == l:
+                return lines[i][1]
+    
+    def entry_point(flist,s,sstart):
+        return 0
+
+    def trailing_functions(flist, s, sstart):
+
+        print('testing', s, sstart)
+
+        for f in flist:
+            #print('Untaint func:', f)
+            f=f.strip()
+            #check if function fits to the left:
+            if(len(f)+1<=sstart):#fit left bracket and function
+                i,j = len(f)-1,sstart-1
+                while i >= 0:
+                    while f[i] == ' ' or f[i] == '(': i-=1 
+                    while s[j] == ' ' or s[j] == '(': j-=1 #consume multiple opening parenthesis
+                    #print(i,j,f[i], s[j])
+                    if f[i] != s[j]:
+                        return 0
+                    i-=1
+                    j-=1
+                return 1
+        return 0
+
+    #traverses lr til root
+    #(Line, )
+    def rec_climb(varg):#vulnerable argument tuple
+        
+        varg_name=varg[3]
+        start=varg[0]
+        #line[1][line[1][:-equals_pos].rfind('$')
+        line = get_line(varg[0])
+        idx = line[varg[1]:].find('$')#first parm of vuln function
+        print(line[varg[1]:][idx:])
+        #print (line,idx)
+        
+        if(trailing_functions(varg[4].untaint_funcs, line[varg[1]:], idx)):
+            print('Last chance to untaint was successful')
+            print
+
+        return
+
+        # in reality this code is creating the tree during runtime and does checks streight away
+        #lrtuple: (line,lval,rval)
+        for lrtuple in reversed(lr):
+            if (start <= lrtuple[0]) and varg_name in lrtuple[1]:#start from at least the line with vulnerability for nested lr assignment checks
+                #get all right value PHP variables
+                for rarg in re.finditer(PHP_VARS_REG, lrtuple[2]):
+
+                    #print("Right vals:",rarg.group(), rarg.start())
+                    #TODO check if entry point
+                    #trailing_function(flist,s,sstart)
+                    if( trailing_functions(varg[4].untaint_funcs, lrtuple[2], rarg.start()) ):
+                        print('At least one Untainet')
+                    #TODO check for surrounding function corrector
+
+                    #trailing_function(flist,s,sstart)
+                    #print(varg[4].untaint_funcs)
+                    
+
+                    #TODO send it off recursively with artificial tuple
+
+                    #rec_climb([start, j, var_count, var, p])
+                    
+                    
+        return 1
+    
+    #rec_climb(None)
+
+    #(Line,Vulnerable function parameter start index, Argument index, Argument name, Vulnerability index in)
+    #
+    unique_line_vuln_vars=[]
+    vuln_id=0
+
+
+    #traverse lines bottom up and find all occurances of sensitive sinks.
+    for line in reversed(lines):
+
+        #each known patern
+        for p in patterns:
+            #has a list of sinks
+            for s in p.sinks:
+                if s in line[1]:
+                    #treat all occurences of sensitive sink in a line
+                    #all matches of dangerous; think of nested mysql_query(mysql_query($vagarg))
+                    all_vuln_end_indexes=[i.end() for i in re.finditer(s, line[1])]
+                    #print(all_vuln_end_indexes)
+
+                    #search to the right to find var involved
+                    #regexp actually comes from PHP manual for PHP variables
+                    #look for all of it's parameters because even CONNECTION STRINGS may sometimes come from the client.
+                    vuln_len=len(all_vuln_end_indexes)
+                    for i in range(0, vuln_len):# vuln_end_index in enumerate(all_vuln_end_indexes):
+                        
+                        #deals with nested sinks
+                        #catch all $ variables in between sensitive sinks.
+                        #walk in between each sensitive sink and collect $vars
+                        j=all_vuln_end_indexes[i]
+                        k=all_vuln_end_indexes[i+1] if i < vuln_len - 1 else len(line[1])
+
+                        for var_count, var in enumerate(re.findall(PHP_VARS_REG, line[1][j:k])):
+
+                            tuple_to_add=[line[0], j, var_count, var, p, vuln_id]#p is dyn link to pattern
+                            vuln_id=vuln_id+1
+                            if tuple_to_add not in unique_line_vuln_vars:
+                                unique_line_vuln_vars.append(tuple_to_add)
+                    #print(unique_line_vuln_vars)
+                    #print("[*] DANGEROUS ARGUMENT:["+str(dangerous_line_number)+ ", " + str(dangerous_argument_name) + "]" )
+                    #q.put(line)#invert priority
+                    #print('[*] Code ['+str(line[0])+', '+line[1] + '] may contain a \'' + p.name + '\' vulnerability.\n')
+
+
+    for ele in lr:
+        print(ele)
+    print
+    
+    #for each vuln we must get an all clear for all sinks and a printout of what functions were used to unsanitize
+    for ele in unique_line_vuln_vars:
+        #print("[*]=======Calling recursive climb on %s =================" % (ele))
+        print(ele)
+        #rec_climb(ele)
+        
+        
+
+    #while not q.empty():
+        #print(q.get())
+
+def init(names=None):
+    global patterns, PATTERNS_FNAME, snippet_files
+
+    #load vuln patterns from file into memory
+    pattern_files=open(PATTERNS_FNAME,'r').read().strip().split('\n\n')
+    for pattern in pattern_files:
+        #hey i didn't make the file templates
+        #splits splits everywhere
+        tmp=pattern.split('\n')
+        patterns.append(
+            Pattern(tmp[0],#name
+                    tmp[1].split(','),#entry points
+                    tmp[2].split(','),#untainting functions
+                    tmp[3].split(','))#sensitive sinks
+            )
+    #check code snippets one by one
+    for fname in names:
+        try:
+            with open(str(fname),'r') as current_snippet:
+                #by splitting with ; we mostly guarantee top down execution order
+                #for cases like this we must strip each line
+                #echo $b;      echo $b;
+                arr=[]
+                #sql lines poorly padded
+                orphan_line_no=0
+                orphan_lines=[]
+                for line_no, line in enumerate(current_snippet):
+                    
+                    if line.strip()[-1] not in ';':
+                        orphan_lines.append(line.replace('\n',''))
+                    else:
+                        #line ends in ; could be our lucky guy
+                        if len(orphan_lines) > 0:
+                            #print(orphan_lines)
+                            #print(line)
+                            #do we have anything to prepend from the past? 
+                            t=line
+                            line=''
+                            for l in orphan_lines:
+                                line=line.strip()+' '+l 
+                            line=line.strip()+' '+t
+                            line_no-=len(orphan_lines)
+                            #del for next lucky guy
+                            del orphan_lines[:]
+                    
+                    if line.strip()[-1] in ';':
+                        for ins in line.replace('\n','').split(';'):
+                            if ins:
+                                arr.append((line_no+1, ins.strip()))
+
+
+                parse(arr)######################################
+
+        finally:
+            if len(snippet_files) > 0:
+                f=snippet_files.pop()
+                if f is not None:
+                    f.close()
+
+
+def main():
+
+    init(sys.argv[1:])
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,4 @@
+<?php
+$u = $_GET['username'];
+$ul = ($u1=$_GET['username']);
+?>

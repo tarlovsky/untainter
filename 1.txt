@@ -1,0 +1,10 @@
+$a=0;
+$b = str_cat($b = $_GET["vuln"], htmlentities($b));
+$b = htmlentities($b.$b).htmlentities($b);
+echo $a;
+echo $b;
+$hasil_kelas=mysql_query($get_sql_state_from_db2,$koneksi). mysql_query($get_sql_state_from_db3,$koneksi);
+$hasil_kelas=mysql_query(mysql_query($get_sql_state_from_db0.$get_sql_state_from_db1, $koneksi), $koneksi);
+$h=mysql_query($_GET["username"],$koneksi).mysql_query($b,$koneksi);
+$h=mysql_query($a);
+echo $hasil_kelas . 'STATIC STRING' . mysql_query($get_sql, $koneksi);

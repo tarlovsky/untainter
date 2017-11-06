@@ -1,0 +1,6 @@
+<?php
+$u = $_GET['username'];
+$u = ($ul . $ur = $u);
+$q = "SELECT pass FROM users WHERE user='".$u."'";
+mysql_query(mysql_real_escape(my_func($q).$u), $koneksi);
+?>

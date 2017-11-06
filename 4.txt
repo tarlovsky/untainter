@@ -1,0 +1,1 @@
+htmlentities(print htmlentities(($b).(1 - htmlentities(print 3))));

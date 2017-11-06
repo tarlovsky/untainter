@@ -1,0 +1,32 @@
+$a = $_POST['firstname'];
+$b = str_cat("valor 1", $a);
+$firstname = $b . "String nossa";
+echo $b;
+$b = str_cat(($b = $_GET["vuln"]), htmlentities($b));
+echo $b;
+echo $b;
+echo $b;
+
+echo $b;    echo $b;                      	
+<td><input onload="<?php printf('There are %u million bicycles in %s.',$number,$str); $myclickeventhandler=$myclickeventhandler.'maliciouscode';?>" onclick="<?php echo $myclickeventhandler; ?>"type="text" name="firstname" value="<?php echo $firstname; ?>"/></td>
+
+$a.="abc{$a}abc";
+$str = "abc{$str}";
+$str = implode(array('a', 'b', 'c'));
+
+// standard string append
+$str = '';
+for ($i = 30000; $i > 0; $i--) {
+	$str .= 'String concatenation. ';
+}
+// array join
+$str = '';
+$sArr = array();
+for ($i = 30000; $i > 0; $i--) {
+	$sArr[] = 'String concatenation. ';
+}
+$str = implode($sArr);
+
+$vuln0 = $_GET["xss code"];
+$userstr = "userstring";
+echo $vuln0.$userstr;

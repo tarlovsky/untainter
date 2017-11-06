@@ -1,0 +1,58 @@
+{
+  "kind": "program",
+  "children": [
+    {
+      "kind": "echo",
+      "arguments": [
+        {
+          "kind": "bin",
+          "type": ".",
+          "left": {
+            "kind": "bin",
+            "type": ".",
+            "left": {
+              "kind": "variable",
+              "name": "a",
+              "byref": false,
+              "curly": false
+            },
+            "right": {
+              "kind": "variable",
+              "name": "b",
+              "byref": false,
+              "curly": false
+            }
+          },
+          "right": {
+            "kind": "variable",
+            "name": "c",
+            "byref": false,
+            "curly": false
+          }
+        }
+      ]
+    },
+    {
+      "kind": "echo",
+      "arguments": [
+        {
+          "kind": "bin",
+          "type": ".",
+          "left": {
+            "kind": "variable",
+            "name": "d",
+            "byref": false,
+            "curly": false
+          },
+          "right": {
+            "kind": "variable",
+            "name": "e",
+            "byref": false,
+            "curly": false
+          }
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

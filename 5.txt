@@ -1,0 +1,6 @@
+htmlelements($_GET["Username"]).$a=$_GET["Username"];
+$a = $a;
+$a=htmlentities( $a ) . $b      . $c;
+$a= $a.($b=3+(3+3)).($c=3);
+$h = mysql_query($b=$b, $koneksi) . (mysql_query($a=3-3,$koneksi));
+echo $a;

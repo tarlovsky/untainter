@@ -1,0 +1,7 @@
+<?php
+$a = $_GET['username'];
+$b = $_GET['username'];
+$c = $a.$b;
+$c .= mysql_real_escape_string($a);
+mysql_query($c);
+?>

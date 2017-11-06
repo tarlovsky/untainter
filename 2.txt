@@ -1,0 +1,6 @@
+$a=0;
+$b = str_cat($b = $_GET["vuln"]-($b=(1-1))), htmlentities($b));
+$b = htmlentities($b.$b).htmlentities($b);
+$b = mysql_query(mysql_query($b.malfunction($b), $koneksi), $koneksi) + mysql_query($b, $koneksi);
+$h = mysql_query($b=$b, $koneksi) + mysql_query($b=$b,$koneksi);
+echo mysql_query($b, $koneksi);

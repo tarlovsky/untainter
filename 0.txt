@@ -1,0 +1,5 @@
+<?php
+$u = $_GET['passwd'];
+$v = 0;
+if ($u=="123") {$q = True;} else {$q = False;};
+?>

@@ -1,0 +1,5 @@
+$a=$_GET["Username"];
+$b=$a.htmlentities($a);
+mysql_query($b,$k);
+$c=mysql_query($b,$k)+(mysql_query($b,$k));
+echo htmlentities(  $b=(2+($b=(1)))  ) . htmlentities($b);

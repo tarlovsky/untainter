@@ -14,6 +14,7 @@ PHP_VARS_REG='(\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)'
 PHP_VAR_CHARS='[a-z][A-Z][0-9]'
 PHP_CONCAT_OPS_1="\.|\+|\*|\/"
 
+
 #need coma for this
 # (2, '$b', ' str_cat($b = $_GET["vuln"]), htmlentities($b)')
 PHP_CONCAT_OPS=('.', '+', ' ', ',')
@@ -95,6 +96,7 @@ terminals=[
     u'string',
     u'constref',
     u'offsetlookup',
+    u'boolean'
 ]
 
 def descend(child):
@@ -120,10 +122,14 @@ def descend(child):
             return eval(child['kind']+'_handle(child)') 
         elif(child['kind'] == 'encapsed'):
             return eval(child['kind']+'_handle(child)') 
+        elif(child['kind'] == 'if'):
+            return eval(child['kind']+'_handle(child)')
         else:
             #switch funciton call here
             routes=goto(child["kind"])
+            print("KIND "+child['kind'])
             tainted_varnames=[]
+            print("ROUTES"+str(routes))
             for route in routes:
                 #might be a list of arguments #like in a function call;
                 #for each argument we descend;
@@ -167,20 +173,49 @@ def is_untaint(id):
 def bin_handle(child):
     global tainted
     ret=[]
+    tmp=[]
     lval = descend(child['left'])     
     rval = descend(child['right'])
     
     
+    #untaint function calls block propagation of taint values and return None
     if rval is not None:
         rval = rval if isinstance(rval, list) else [rval]
+        tmp.extend(rval)
     if lval is not None:
         lval = lval if isinstance(lval, list) else [lval]
+        tmp.extend(lval)
         
-    #untaint function calls block propagation of taint values and return None
-    if lval is not None and rval is not None: 
-        lval.extend(rval)
-        ret.extend([v for v in lval if v in tainted or is_entry_point(v)])
+    ret.extend([v for v in tmp if (v not in ret) and (v in tainted or is_entry_point(v))])
+        
     #we shall only return tainted values from the binary concatenation
+    return ret
+
+def if_handle(child):
+    bin = descend(child['test'])
+    if bin is not None:
+        bin = bin if isinstance(bin, list) else [bin]
+        for v in bin:
+            if v and (v in tainted or is_entry_point(v)):
+                body_children = child['body']['children']
+                alternate_children = child['alternate']['children']
+                for ch in body_children+alternate_children:
+                    descend(ch)
+                    
+    print("IFBIN"+str(bin))
+    #for i, ch in enumerate(child["children"]):
+        #descend(ch)
+
+    return None
+
+def encapsed_handle(child):
+    ret = []
+
+    for i in child['value']:
+        val = descend(i)
+        if val:
+            ret.append(val)
+    print('encapsed ' + str(ret))
     return ret
 
 def call_handle(child):
@@ -202,10 +237,11 @@ def call_handle(child):
                 vals.append(v)
         if len(vals) > 0:
             print('Sensitive sink [%s] is accepting a tainted value/s [%s]!' % (id, str(vals)))
+            #return vals
     
     if is_untaint(id):
         if argv[0] in tainted:
-    
+            
             # untaint function calls block propagation of 
             # taint values and return None
             return None
@@ -231,10 +267,10 @@ def assign_handle(child):
             for v in lval:
                 if v in tainted:
                     rval = set().union(tainted[v], rval)
-                    #rval.extend(tainted[v])
+
         tainted_by = []
         for v in rval:
-            if v in tainted or is_entry_point(v):
+            if v and (v in tainted or is_entry_point(v)):
                 tainted_by.append(v)
             
         if len(tainted_by) > 0:

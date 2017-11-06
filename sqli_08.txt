@@ -2,5 +2,5 @@
 $a = $_GET['username'];
 $b = $_GET['username'];
 $c = mysql_escape_string($b);
-mysql_query($a.$b,$koneksi);
+mysql_query(mysql_escape_string($a.$b),$koneksi);
 ?>

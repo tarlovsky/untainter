@@ -1,5 +1,6 @@
 <?php
-$u = $_GET["username"];
-$q = "SELECT pass FROM users WHERE user='".$u."'";
+$u = $_FILES["username"];
+$u1 = $_GET["username1"];
+$q = "SELECT pass FROM users WHERE user='".$u.$u1."'";
 $query = mysql_query(mysql_real_escape_string($q));
 ?>

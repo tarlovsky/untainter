@@ -385,7 +385,7 @@ def call_handle(child):
                         if ret >= 2:
                             corrected += 1
                         else:
-                            print('[*] @ Sensitive sink [%s] is accepting a tainted value/s [%s]!' % (id, str(detuple(v))))
+                            print('[*] @ Sensitive sink [%s] is accepting a tainted value/s coming from [%s]!' % (id, str(detuple(v))))
                         ret = 0
                     elif v in tainted:
                         
@@ -412,7 +412,7 @@ def call_handle(child):
                 
                     elif is_entry_point(v):
                         taint_update.append( (id, v) ) 
-                        print('[*] @ Sensitive sink [%s] is accepting a tainted value/s [%s]!' % (id, str(detuple(v))))
+                        print('[*] @ Sensitive sink [%s] is accepting a tainted value/s coming from [%s]!' % (id, str(detuple(v))))
                     
                 #does function untaint any of the original entries?
                 elif is_untaint(original_entries, id):

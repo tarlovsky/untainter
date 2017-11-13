@@ -4,6 +4,6 @@ $ul = $_GET['ul'];
 $u = ($ul . $ul = $u);
 $q = "SELECT pass FROM users WHERE user='".$u."'";
 $koneksi = mysql_escape_string($_GET['koneksi']);
-$t = ($q);
-mysql_query(mysql_escape_string(pg_escape_string($t)), ($koneksi));
+$t = pg_escape_string($q);
+mysql_query(pg_query(($t)), ($koneksi));
 ?>

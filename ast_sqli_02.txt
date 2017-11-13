@@ -166,13 +166,20 @@
 				"curly": false
 			},
 			"right": {
-				"kind": "parenthesis",
-				"inner": {
-					"kind": "variable",
-					"name": "q",
-					"byref": false,
-					"curly": false
-				}
+				"kind": "call",
+				"what": {
+					"kind": "identifier",
+					"resolution": "uqn",
+					"name": "pg_escape_string"
+				},
+				"arguments": [
+					{
+						"kind": "variable",
+						"name": "q",
+						"byref": false,
+						"curly": false
+					}
+				]
 			}
 		},
 		{
@@ -188,24 +195,17 @@
 					"what": {
 						"kind": "identifier",
 						"resolution": "uqn",
-						"name": "mysql_escape_string"
+						"name": "pg_query"
 					},
 					"arguments": [
 						{
-							"kind": "call",
-							"what": {
-								"kind": "identifier",
-								"resolution": "uqn",
-								"name": "pg_escape_string"
-							},
-							"arguments": [
-								{
-									"kind": "variable",
-									"name": "t",
-									"byref": false,
-									"curly": false
-								}
-							]
+							"kind": "parenthesis",
+							"inner": {
+								"kind": "variable",
+								"name": "t",
+								"byref": false,
+								"curly": false
+							}
 						}
 					]
 				},

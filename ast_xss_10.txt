@@ -9,22 +9,32 @@
 					"what": {
 						"kind": "identifier",
 						"resolution": "uqn",
-						"name": "mysql_real_escape_string"
+						"name": "mysql_query"
 					},
 					"arguments": [
 						{
-							"kind": "offsetlookup",
+							"kind": "call",
 							"what": {
-								"kind": "variable",
-								"name": "_GET",
-								"byref": false,
-								"curly": false
+								"kind": "identifier",
+								"resolution": "uqn",
+								"name": "mysql_real_escape_string"
 							},
-							"offset": {
-								"kind": "string",
-								"value": "username",
-								"isDoubleQuote": true
-							}
+							"arguments": [
+								{
+									"kind": "offsetlookup",
+									"what": {
+										"kind": "variable",
+										"name": "_GET",
+										"byref": false,
+										"curly": false
+									},
+									"offset": {
+										"kind": "string",
+										"value": "username",
+										"isDoubleQuote": true
+									}
+								}
+							]
 						}
 					]
 				}

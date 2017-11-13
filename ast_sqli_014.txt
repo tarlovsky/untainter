@@ -233,20 +233,13 @@
 				"curly": false
 			},
 			"right": {
-				"kind": "call",
-				"what": {
-					"kind": "identifier",
-					"resolution": "uqn",
-					"name": "mysql_escape_string"
-				},
-				"arguments": [
-					{
-						"kind": "variable",
-						"name": "tmp",
-						"byref": false,
-						"curly": false
-					}
-				]
+				"kind": "parenthesis",
+				"inner": {
+					"kind": "variable",
+					"name": "tmp",
+					"byref": false,
+					"curly": false
+				}
 			}
 		},
 		{

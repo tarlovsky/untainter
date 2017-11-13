@@ -1,8 +1,9 @@
 <?php
 $u = $_GET["u"];
 $p = $_GET["p"];
+$koneksi = $_GET["koneksi"];
+$koneksi = pg_escape_string($koneksi);
+$b = $b;
 $b = $u.$p.mysql_real_escape_string($u.$p);
-$b = pg_escape_string(($b));
-$s = pg_escape_string($b);
-$tmp = pg_query($s);
+$tmp = pg_query($b, $koneksi);
 ?>

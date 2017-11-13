@@ -39,7 +39,7 @@
 				"value": [
 					{
 						"kind": "string",
-						"value": "SELECT id_nilai,nis,semester FROM nilai WHERE nis='.",
+						"value": "SELECT id_nilai,nis,semester FROM nilai WHERE nis='.pg_escape_string(",
 						"isDoubleQuote": false
 					},
 					{
@@ -50,7 +50,7 @@
 					},
 					{
 						"kind": "string",
-						"value": ".'GROUP BY semester",
+						"value": ").'GROUP BY semester",
 						"isDoubleQuote": false
 					}
 				],

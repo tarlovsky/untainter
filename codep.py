@@ -372,7 +372,7 @@ def call_handle(child):
                         #           to ret >= 2 * len(tainted[v]):
                         # because of nested untaint functions
                         # TODO Treat sensitive sinks after they've been processed.  
-                        if isinstance(v, tuple):
+                        if isinstance(v, tuple) or is_entry_point(v):
                                 taint_update.append( (id, v) ) 
                         else:
                             for t in tainted[v]:
@@ -385,7 +385,10 @@ def call_handle(child):
                         else:
                             print('[*] @ Sensitive sink [%s] is accepting a tainted value/s [%s]!' % (id, str(v)))
                         ret = 0
-            
+                        
+                    elif is_entry_point(v):
+                        print('[*] @ Sensitive sink [%s] is accepting a tainted value/s [%s]!' % (id, str(v)))
+
                 #does function untaint any of the original entries?
                 elif is_untaint(original_entries, id):
                     

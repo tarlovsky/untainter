@@ -348,10 +348,10 @@ def call_handle(child):
         
         taint_update = []  
         ret=0
-
+        corrected = 0
             #is this a sink that is vulnerable to it's arg's original taint value? (i.e.: _GET, ..etc)
         print(tainted)
-
+        
         for v in argv:
             
             original_entries=[]
@@ -372,22 +372,22 @@ def call_handle(child):
                         # changed from ret == 2 * len(tainted[v]):
                         #           to ret >= 2 * len(tainted[v]):
                         # because of nested untaint functions
+                        # TODO Treat sensitive sinks after they've been processed.  
+                        if isinstance(v, tuple):
+                                taint_update.append( (id, v) ) 
+                        else:
+                            for t in tainted[v]:
+                                taint_update.append( (id, t) )
+
                         if ret > 0 and ret >= 2 * len(tainted[v]):
-                            print('[*] @ Sensitive sink [%s] has beed corrected!' % (id))
-                            ret = 0
-                            return
+                            corrected = corrected + 1
+                            #print('[*] @ Sensitive sink [%s] has beed corrected!' % (id))
+                            #ret = 0
+                            ret = 0  
                         else:
                             print('[*] @ Sensitive sink [%s] is accepting a tainted value/s [%s]!' % (id, str(v)))
                         
-
-                    # TODO Treat sensitive sinks after they've been processed.  
-                    if isinstance(v, tuple):
-                            taint_update.append( (id, v) ) 
-                    else:
-                        for t in tainted[v]:
-                            taint_update.append( (id, t) )
-                        
-
+            
                 #does function untaint any of the original entries?
                 elif is_untaint(original_entries, id):
                     
@@ -396,7 +396,9 @@ def call_handle(child):
                     else:
                         for t in tainted[v]:
                             taint_update.append( (id, t) ) 
-                        
+        
+        if corrected > 0 and corrected == len(argv):
+            print('[*] @ Sensitive sink [%s] has beed corrected!' % (id))                
         
         return taint_update
             
@@ -410,12 +412,12 @@ def traverse(key, sink_id):
     global tainted
     
     if isinstance(key, tuple):
+        
         # key tuple example
         # (u'mysql_real_escape_string', u'_GET["username"]')  
-        
         if is_untaint_for_sink(key[0], sink_id):
             return 1 + traverse(key[1], sink_id)#without passing through tuple we won't untiant
-    
+
         return traverse(key[1], sink_id)
 
     elif isinstance(key, basestring):

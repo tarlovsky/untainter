@@ -1,5 +1,5 @@
 <?php
-$nis=$_POST['nis'];
+$nis=$_POSTs['nis'];
 $query="SELECT * FROM siswa WHERE nis='$nis' GROUP BY ID";
-mysql_query(mysql_escape_string($query=($a.$b)),$koneksi);
+mysql_query(($query=($a.$b)),$koneksi);
 ?>

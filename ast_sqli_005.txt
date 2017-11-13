@@ -6,7 +6,7 @@
 			"operator": "=",
 			"left": {
 				"kind": "variable",
-				"name": "nis",
+				"name": "matapelajaran",
 				"byref": false,
 				"curly": false
 			},
@@ -14,13 +14,13 @@
 				"kind": "offsetlookup",
 				"what": {
 					"kind": "variable",
-					"name": "_POSTs",
+					"name": "_POST",
 					"byref": false,
 					"curly": false
 				},
 				"offset": {
 					"kind": "string",
-					"value": "nis",
+					"value": "matapelajaran",
 					"isDoubleQuote": false
 				}
 			}
@@ -30,7 +30,31 @@
 			"operator": "=",
 			"left": {
 				"kind": "variable",
-				"name": "query",
+				"name": "idmatapelajaran",
+				"byref": false,
+				"curly": false
+			},
+			"right": {
+				"kind": "offsetlookup",
+				"what": {
+					"kind": "variable",
+					"name": "_POST",
+					"byref": false,
+					"curly": false
+				},
+				"offset": {
+					"kind": "string",
+					"value": "idmatapelajaran",
+					"isDoubleQuote": false
+				}
+			}
+		},
+		{
+			"kind": "assign",
+			"operator": "=",
+			"left": {
+				"kind": "variable",
+				"name": "edit_matapelajaran",
 				"byref": false,
 				"curly": false
 			},
@@ -39,18 +63,29 @@
 				"value": [
 					{
 						"kind": "string",
-						"value": "SELECT * FROM siswa WHERE nis='",
+						"value": "UPDATE matapelajaran SET matapelajaran='",
 						"isDoubleQuote": false
 					},
 					{
 						"kind": "variable",
-						"name": "nis",
+						"name": "matapelajaran",
 						"byref": false,
 						"curly": false
 					},
 					{
 						"kind": "string",
-						"value": "' GROUP BY ID",
+						"value": "' WHERE id_matapelajaran='",
+						"isDoubleQuote": false
+					},
+					{
+						"kind": "variable",
+						"name": "idmatapelajaran",
+						"byref": false,
+						"curly": false
+					},
+					{
+						"kind": "string",
+						"value": "'",
 						"isDoubleQuote": false
 					}
 				],
@@ -66,36 +101,10 @@
 			},
 			"arguments": [
 				{
-					"kind": "parenthesis",
-					"inner": {
-						"kind": "assign",
-						"operator": "=",
-						"left": {
-							"kind": "variable",
-							"name": "query",
-							"byref": false,
-							"curly": false
-						},
-						"right": {
-							"kind": "parenthesis",
-							"inner": {
-								"kind": "bin",
-								"type": ".",
-								"left": {
-									"kind": "variable",
-									"name": "a",
-									"byref": false,
-									"curly": false
-								},
-								"right": {
-									"kind": "variable",
-									"name": "b",
-									"byref": false,
-									"curly": false
-								}
-							}
-						}
-					}
+					"kind": "variable",
+					"name": "edit_matapelajaran",
+					"byref": false,
+					"curly": false
 				},
 				{
 					"kind": "variable",

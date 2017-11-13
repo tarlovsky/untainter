@@ -30,7 +30,7 @@
 			"operator": "=",
 			"left": {
 				"kind": "variable",
-				"name": "p",
+				"name": "u1",
 				"byref": false,
 				"curly": false
 			},
@@ -44,7 +44,7 @@
 				},
 				"offset": {
 					"kind": "string",
-					"value": "password",
+					"value": "username1",
 					"isDoubleQuote": true
 				}
 			}
@@ -54,7 +54,51 @@
 			"operator": "=",
 			"left": {
 				"kind": "variable",
-				"name": "b",
+				"name": "q",
+				"byref": false,
+				"curly": false
+			},
+			"right": {
+				"kind": "bin",
+				"type": ".",
+				"left": {
+					"kind": "bin",
+					"type": ".",
+					"left": {
+						"kind": "bin",
+						"type": ".",
+						"left": {
+							"kind": "string",
+							"value": "SELECT pass FROM users WHERE user='",
+							"isDoubleQuote": true
+						},
+						"right": {
+							"kind": "variable",
+							"name": "u",
+							"byref": false,
+							"curly": false
+						}
+					},
+					"right": {
+						"kind": "variable",
+						"name": "u1",
+						"byref": false,
+						"curly": false
+					}
+				},
+				"right": {
+					"kind": "string",
+					"value": "'",
+					"isDoubleQuote": true
+				}
+			}
+		},
+		{
+			"kind": "assign",
+			"operator": "=",
+			"left": {
+				"kind": "variable",
+				"name": "query",
 				"byref": false,
 				"curly": false
 			},
@@ -68,7 +112,7 @@
 				"arguments": [
 					{
 						"kind": "variable",
-						"name": "u",
+						"name": "u1",
 						"byref": false,
 						"curly": false
 					}
@@ -76,66 +120,20 @@
 			}
 		},
 		{
-			"kind": "assign",
-			"operator": "=",
-			"left": {
-				"kind": "variable",
-				"name": "s",
-				"byref": false,
-				"curly": false
+			"kind": "call",
+			"what": {
+				"kind": "identifier",
+				"resolution": "uqn",
+				"name": "pg_query"
 			},
-			"right": {
-				"kind": "bin",
-				"type": ".",
-				"left": {
-					"kind": "call",
-					"what": {
-						"kind": "identifier",
-						"resolution": "uqn",
-						"name": "mysql_real_escape_string"
-					},
-					"arguments": [
-						{
-							"kind": "variable",
-							"name": "u",
-							"byref": false,
-							"curly": false
-						}
-					]
-				},
-				"right": {
+			"arguments": [
+				{
 					"kind": "variable",
-					"name": "b",
+					"name": "query",
 					"byref": false,
 					"curly": false
 				}
-			}
-		},
-		{
-			"kind": "assign",
-			"operator": "=",
-			"left": {
-				"kind": "variable",
-				"name": "tmp",
-				"byref": false,
-				"curly": false
-			},
-			"right": {
-				"kind": "call",
-				"what": {
-					"kind": "identifier",
-					"resolution": "uqn",
-					"name": "mysql_query"
-				},
-				"arguments": [
-					{
-						"kind": "variable",
-						"name": "s",
-						"byref": false,
-						"curly": false
-					}
-				]
-			}
+			]
 		}
 	],
 	"errors": []

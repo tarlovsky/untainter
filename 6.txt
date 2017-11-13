@@ -1,8 +1,3 @@
-echo htmlentities(  $b  ) . htmlentities($b);
-
-
-AST Structure :
-```json
 {
   "kind": "program",
   "children": [

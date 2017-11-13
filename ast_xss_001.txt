@@ -1,0 +1,53 @@
+{
+	"kind": "program",
+	"children": [
+		{
+			"kind": "inline",
+			"value": "<form action=\""
+		},
+		{
+			"kind": "echo",
+			"arguments": [
+				{
+					"kind": "call",
+					"what": {
+						"kind": "identifier",
+						"resolution": "uqn",
+						"name": "mysql_query"
+					},
+					"arguments": [
+						{
+							"kind": "call",
+							"what": {
+								"kind": "identifier",
+								"resolution": "uqn",
+								"name": "mysql_real_escape_string"
+							},
+							"arguments": [
+								{
+									"kind": "offsetlookup",
+									"what": {
+										"kind": "variable",
+										"name": "_GET",
+										"byref": false,
+										"curly": false
+									},
+									"offset": {
+										"kind": "string",
+										"value": "PHP_SELF",
+										"isDoubleQuote": true
+									}
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"kind": "inline",
+			"value": "\" method=\"post\">\n"
+		}
+	],
+	"errors": []
+}

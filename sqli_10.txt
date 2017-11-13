@@ -1,4 +1,12 @@
 <?php
+
 $u = $_GET['passwd'];
-if ($u=="123") {$q = True;} else {$q = False;};
+
+if ( $u !== "123" ) {
+    $q = $u;
+    mysql_query($q);
+} else {
+    $b = $good_variable;
+};
+
 ?>

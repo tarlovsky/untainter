@@ -1,0 +1,9 @@
+<?php
+$u = $_GET["username"];
+$u1 = $_FILES["username1"];
+$u2 = $u1;
+$q = "SELECT pass FROM users WHERE user='".$u.$u2."'";
+$c = mysql_real_escape_string(mysql_real_escape_string($q));
+$query = pg_query($c);
+$t = mysql_query($query);
+?>

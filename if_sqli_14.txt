@@ -1,0 +1,30 @@
+<?php
+
+$u = $_GET['passwd'];
+$q = "";
+if ( true ) {
+    $q = $u;
+    $q = mysql_real_escape_string($u);
+} else {
+    $q = mysql_real_escape_string($u);
+};
+mysql_query($q);
+######################################
+
+$u = $_GET['passwd'];
+$q = " ";
+# se o $q é sujo em pelo menos um dos blocos tenho que ignorar as correçoes feitas noutros blocks
+if ( $u !== "123" ) {
+    # fazer TAINTED list local e faço commit pro global na avaliação final.
+    $q = 1;
+    $q = mysql_real_escape_string($q);
+    $q .= $f;
+} else {
+    $q = mysql_real_escape_string($q);
+};
+
+
+pg_query($q);
+
+
+?>

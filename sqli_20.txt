@@ -1,0 +1,7 @@
+<?php
+$u = $_GET["username"];
+$u1 = $_GET["username1"];
+$q = "SELECT pass FROM users WHERE user='".$u.$u1."'";
+$query = mysql_escape_string($u1);
+pg_query($query);
+?>

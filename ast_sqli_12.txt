@@ -97,7 +97,7 @@
 					"arguments": [
 						{
 							"kind": "variable",
-							"name": "u",
+							"name": "p",
 							"byref": false,
 							"curly": false
 						}
@@ -131,6 +131,58 @@
 					{
 						"kind": "variable",
 						"name": "s",
+						"byref": false,
+						"curly": false
+					}
+				]
+			}
+		},
+		{
+			"kind": "assign",
+			"operator": "=",
+			"left": {
+				"kind": "variable",
+				"name": "tmp",
+				"byref": false,
+				"curly": false
+			},
+			"right": {
+				"kind": "call",
+				"what": {
+					"kind": "identifier",
+					"resolution": "uqn",
+					"name": "pg_escape_string"
+				},
+				"arguments": [
+					{
+						"kind": "variable",
+						"name": "tmp",
+						"byref": false,
+						"curly": false
+					}
+				]
+			}
+		},
+		{
+			"kind": "assign",
+			"operator": "=",
+			"left": {
+				"kind": "variable",
+				"name": "tmp",
+				"byref": false,
+				"curly": false
+			},
+			"right": {
+				"kind": "call",
+				"what": {
+					"kind": "identifier",
+					"resolution": "uqn",
+					"name": "pg_query"
+				},
+				"arguments": [
+					{
+						"kind": "variable",
+						"name": "tmp",
 						"byref": false,
 						"curly": false
 					}

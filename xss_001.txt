@@ -1,0 +1,1 @@
+<form action="<?php echo mysql_query(mysql_real_escape_string($_GET["PHP_SELF"]));?>" method="post">

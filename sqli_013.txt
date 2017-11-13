@@ -1,0 +1,8 @@
+<?php
+$u = $_GET["u"];
+$p = $_GET["p"];
+$b = $u.$p.mysql_real_escape_string($u.$p);
+$b = pg_escape_string(($b));
+$s = pg_escape_string($b);
+$tmp = pg_query($s);
+?>

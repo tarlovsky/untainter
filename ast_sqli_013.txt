@@ -20,7 +20,7 @@
 				},
 				"offset": {
 					"kind": "string",
-					"value": "username",
+					"value": "u",
 					"isDoubleQuote": true
 				}
 			}
@@ -44,8 +44,64 @@
 				},
 				"offset": {
 					"kind": "string",
-					"value": "password",
+					"value": "p",
 					"isDoubleQuote": true
+				}
+			}
+		},
+		{
+			"kind": "assign",
+			"operator": "=",
+			"left": {
+				"kind": "variable",
+				"name": "b",
+				"byref": false,
+				"curly": false
+			},
+			"right": {
+				"kind": "bin",
+				"type": ".",
+				"left": {
+					"kind": "bin",
+					"type": ".",
+					"left": {
+						"kind": "variable",
+						"name": "u",
+						"byref": false,
+						"curly": false
+					},
+					"right": {
+						"kind": "variable",
+						"name": "p",
+						"byref": false,
+						"curly": false
+					}
+				},
+				"right": {
+					"kind": "call",
+					"what": {
+						"kind": "identifier",
+						"resolution": "uqn",
+						"name": "mysql_real_escape_string"
+					},
+					"arguments": [
+						{
+							"kind": "bin",
+							"type": ".",
+							"left": {
+								"kind": "variable",
+								"name": "u",
+								"byref": false,
+								"curly": false
+							},
+							"right": {
+								"kind": "variable",
+								"name": "p",
+								"byref": false,
+								"curly": false
+							}
+						}
+					]
 				}
 			}
 		},
@@ -63,14 +119,17 @@
 				"what": {
 					"kind": "identifier",
 					"resolution": "uqn",
-					"name": "mysql_escape_string"
+					"name": "pg_escape_string"
 				},
 				"arguments": [
 					{
-						"kind": "variable",
-						"name": "u",
-						"byref": false,
-						"curly": false
+						"kind": "parenthesis",
+						"inner": {
+							"kind": "variable",
+							"name": "b",
+							"byref": false,
+							"curly": false
+						}
 					}
 				]
 			}
@@ -85,30 +144,20 @@
 				"curly": false
 			},
 			"right": {
-				"kind": "bin",
-				"type": ".",
-				"left": {
-					"kind": "call",
-					"what": {
-						"kind": "identifier",
-						"resolution": "uqn",
-						"name": "mysql_real_escape_string"
-					},
-					"arguments": [
-						{
-							"kind": "variable",
-							"name": "u",
-							"byref": false,
-							"curly": false
-						}
-					]
+				"kind": "call",
+				"what": {
+					"kind": "identifier",
+					"resolution": "uqn",
+					"name": "pg_escape_string"
 				},
-				"right": {
-					"kind": "variable",
-					"name": "b",
-					"byref": false,
-					"curly": false
-				}
+				"arguments": [
+					{
+						"kind": "variable",
+						"name": "b",
+						"byref": false,
+						"curly": false
+					}
+				]
 			}
 		},
 		{
@@ -125,7 +174,7 @@
 				"what": {
 					"kind": "identifier",
 					"resolution": "uqn",
-					"name": "mysql_query"
+					"name": "pg_query"
 				},
 				"arguments": [
 					{

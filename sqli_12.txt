@@ -2,6 +2,8 @@
 $u = $_GET["username"];
 $p = $_GET["password"];
 $b = mysql_escape_string($u);
-$s = mysql_real_escape_string($u).$b;
+$s = mysql_real_escape_string($p).$b;
 $tmp = mysql_query($s);
+$tmp = pg_escape_string($tmp);
+$tmp = pg_query($tmp);
 ?>

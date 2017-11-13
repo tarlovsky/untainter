@@ -29,7 +29,7 @@
 			"kind": "if",
 			"test": {
 				"kind": "bin",
-				"type": "==",
+				"type": "!==",
 				"left": {
 					"kind": "variable",
 					"name": "u",
@@ -55,9 +55,27 @@
 							"curly": false
 						},
 						"right": {
-							"kind": "boolean",
-							"value": true
+							"kind": "variable",
+							"name": "u",
+							"byref": false,
+							"curly": false
 						}
+					},
+					{
+						"kind": "call",
+						"what": {
+							"kind": "identifier",
+							"resolution": "uqn",
+							"name": "mysql_query"
+						},
+						"arguments": [
+							{
+								"kind": "variable",
+								"name": "q",
+								"byref": false,
+								"curly": false
+							}
+						]
 					}
 				]
 			},
@@ -69,13 +87,15 @@
 						"operator": "=",
 						"left": {
 							"kind": "variable",
-							"name": "q",
+							"name": "b",
 							"byref": false,
 							"curly": false
 						},
 						"right": {
-							"kind": "boolean",
-							"value": false
+							"kind": "variable",
+							"name": "good_variable",
+							"byref": false,
+							"curly": false
 						}
 					}
 				]

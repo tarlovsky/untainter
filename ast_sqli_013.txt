@@ -78,25 +78,15 @@
 			"operator": "=",
 			"left": {
 				"kind": "variable",
-				"name": "koneksi",
+				"name": "b",
 				"byref": false,
 				"curly": false
 			},
 			"right": {
-				"kind": "call",
-				"what": {
-					"kind": "identifier",
-					"resolution": "uqn",
-					"name": "pg_escape_string"
-				},
-				"arguments": [
-					{
-						"kind": "variable",
-						"name": "koneksi",
-						"byref": false,
-						"curly": false
-					}
-				]
+				"kind": "variable",
+				"name": "b",
+				"byref": false,
+				"curly": false
 			}
 		},
 		{

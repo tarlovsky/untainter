@@ -349,20 +349,19 @@ def call_handle(child):
         taint_update = []  
         ret=0
         corrected = 0
-            #is this a sink that is vulnerable to it's arg's original taint value? (i.e.: _GET, ..etc)
-        print(tainted)
+        
+        #print(tainted)
         
         for v in argv:
             
             original_entries=[]
             
             if v is not None:
-                #taint_origin detuples values
+                #taint_origin performs a detuple on v
                 taint_origin(v, original_entries)
             
-
             if detuple(v) in tainted or is_entry_point(detuple(v)):    
-                
+                #is this a sink that is vulnerable to it's arg's original taint value? (i.e.: _GET, ..etc)        
                 if original_entries and is_sink(original_entries, id):
                     
                     if v in tainted:
@@ -464,24 +463,19 @@ def assign_handle(child):
         #take all right tainted values or entry points and add them to lval's list  
         tainted_by = []
         
-        
         for v in rval:
-            
             #only propagate tainted values and tuples
             if isinstance(v, tuple):
-                
                 tainted_by.append(v)
-            elif (v and v not in lval):
-                
+            #removed elif (v and v not in lval):
+            elif (v):
                 if is_entry_point(v):
                     tainted_by.append(v)
                 elif v in tainted:
                     tainted_by.extend(tainted[v])
                 
-
-    
+        
         if len(tainted_by) > 0:
-           
             tainted[lval[0]] = tainted_by
             return lval
         

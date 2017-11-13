@@ -172,7 +172,6 @@ def is_entry_point(s):
     
     s = detuple(s)
     
-    
     #if isinstance(s, tuple):
         #s = s[1]
         
@@ -339,7 +338,7 @@ def call_handle(child):
             tainted[temp] = []
     
     #print("%s Descended ARGS %s " % (id, str(argv)))
-
+    
     if len(argv) > 0 and argv:
         
         # gets entry point for any variable
@@ -347,14 +346,24 @@ def call_handle(child):
         
         
         taint_update = []  
+        
+        # traverse function returns to RET.
+        # checks for the conditions emposed by the tainting problem of having:
+        # a valid entry point for that sink
+        # a valid untaint function for that sink
+        # This is acrually a pretty smart way of figuring out
+        # whether the function has been untained.
+        # ret will be greater or equal to 2 * len(tainted arguments) for an argument
         ret=0
+        
+        # inside this function_call
         corrected=0
         tainted_count=0
         
-        print(tainted)
+        #print(tainted)
         
         for v in argv:
-            print("ARGUMENT" + v)
+            
             original_entries=[]
             
             if v is not None:
@@ -363,13 +372,23 @@ def call_handle(child):
             
             if detuple(v) in tainted or is_entry_point(detuple(v)):    
 
-                
                 #is this a sink that is vulnerable to it's arg's original taint value? (i.e.: _GET, ..etc)        
                 if original_entries and is_sink(original_entries, id):
-
-                    if v in tainted:
-                        tainted_count+=1
-
+                    
+                    tainted_count+=1
+                    #print(v)
+                    
+                    #could be direct function call within parameter placing
+                    if isinstance(v, tuple):
+                        ret+= traverse(v, id)
+                        taint_update.append( (id, v) ) 
+                        if ret >= 2:
+                            corrected += 1
+                        else:
+                            print('[*] @ Sensitive sink [%s] is accepting a tainted value/s [%s]!' % (id, str(v)))
+                        ret = 0
+                    elif v in tainted:
+                        
                         for e in tainted[v]:
                             ret += traverse(e, id)#are all of them clear?   
                                 
@@ -377,11 +396,11 @@ def call_handle(child):
                         #           to ret >= 2 * len(tainted[v]):
                         # because of nested untaint functions
                         # TODO Treat sensitive sinks after they've been processed.  
-                        if isinstance(v, tuple) or is_entry_point(v):
-                                taint_update.append( (id, v) ) 
-                        else:
-                            for t in tainted[v]:
-                                taint_update.append( (id, t) )
+                        #if isinstance(v, tuple) or is_entry_point(v):
+                        #        taint_update.append( (id, v) ) 
+                        #else:
+                        for t in tainted[v]:
+                            taint_update.append( (id, t) )
 
                         if ret > 0 and ret >= 2 * len(tainted[v]):
                             corrected = corrected + 1
@@ -390,10 +409,11 @@ def call_handle(child):
                         else:
                             print('[*] @ Sensitive sink [%s] is accepting a tainted value/s [%s]!' % (id, str(v)))
                         ret = 0
-
+                
                     elif is_entry_point(v):
+                        taint_update.append( (id, v) ) 
                         print('[*] @ Sensitive sink [%s] is accepting a tainted value/s [%s]!' % (id, str(v)))
-
+                    
                 #does function untaint any of the original entries?
                 elif is_untaint(original_entries, id):
 

@@ -382,20 +382,19 @@ def call_handle(child):
                             corrected = corrected + 1
                             #print('[*] @ Sensitive sink [%s] has beed corrected!' % (id))
                             #ret = 0
-                            ret = 0  
                         else:
                             print('[*] @ Sensitive sink [%s] is accepting a tainted value/s [%s]!' % (id, str(v)))
-                        
+                        ret = 0
             
                 #does function untaint any of the original entries?
                 elif is_untaint(original_entries, id):
                     
-                    if isinstance(v, tuple):
+                    if isinstance(v, tuple) or is_entry_point(v):
                         taint_update.append( (id, v) )
                     else:
                         for t in tainted[v]:
                             taint_update.append( (id, t) ) 
-        
+    
         if corrected > 0 and corrected == len(argv):
             print('[*] @ Sensitive sink [%s] has beed corrected!' % (id))                
         

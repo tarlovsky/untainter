@@ -3,7 +3,7 @@ $u = $_GET['username'];
 $ul = $_GET['ul'];
 $u = ($ul . $ul = $u);
 $q = "SELECT pass FROM users WHERE user='".$u."'";
-$koneksi = $_GET['koneksi'];
+$koneksi = mysql_escape_string($_GET['koneksi']);
 $t = ($q);
-mysql_query(pg_query(pg_escape_string($t)), ($koneksi));
+mysql_query(mysql_escape_string(pg_escape_string($t)), ($koneksi));
 ?>

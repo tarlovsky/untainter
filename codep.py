@@ -348,12 +348,13 @@ def call_handle(child):
         
         taint_update = []  
         ret=0
-        corrected = 0
+        corrected=0
+        tainted_count=0
         
-        #print(tainted)
+        print(tainted)
         
         for v in argv:
-            
+            print("ARGUMENT" + v)
             original_entries=[]
             
             if v is not None:
@@ -361,10 +362,14 @@ def call_handle(child):
                 taint_origin(v, original_entries)
             
             if detuple(v) in tainted or is_entry_point(detuple(v)):    
+
+                
                 #is this a sink that is vulnerable to it's arg's original taint value? (i.e.: _GET, ..etc)        
                 if original_entries and is_sink(original_entries, id):
-                    
+
                     if v in tainted:
+                        tainted_count+=1
+
                         for e in tainted[v]:
                             ret += traverse(e, id)#are all of them clear?   
                                 
@@ -385,26 +390,27 @@ def call_handle(child):
                         else:
                             print('[*] @ Sensitive sink [%s] is accepting a tainted value/s [%s]!' % (id, str(v)))
                         ret = 0
-                        
+
                     elif is_entry_point(v):
                         print('[*] @ Sensitive sink [%s] is accepting a tainted value/s [%s]!' % (id, str(v)))
 
                 #does function untaint any of the original entries?
                 elif is_untaint(original_entries, id):
-                    
+
                     if isinstance(v, tuple) or is_entry_point(v):
                         taint_update.append( (id, v) )
                     else:
                         for t in tainted[v]:
                             taint_update.append( (id, t) ) 
-    
-        if corrected > 0 and corrected == len(argv):
+
+        if tainted_count > 0 and corrected > 0 and corrected == tainted_count:
             print('[*] @ Sensitive sink [%s] has beed corrected!' % (id))                
         
-        return taint_update
+        if len(taint_update) > 0:
+            return taint_update
             
-    print("RETURNINNNINGINGIGN")
-    return [argv]
+    
+    return argv
 
 # return 1 on vulnerable.
 # traverse starting on a sensitive sink upword.

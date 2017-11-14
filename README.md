@@ -1,4 +1,4 @@
-############# INPUT
+############# INPUT #############
 <?php
 $u = $_GET["u"];
 $p = $_GET["p"];
@@ -17,7 +17,7 @@ mysql_query($t);
 
 *-----------Line: 8---------*
 [*] @ Sensitive sink [mysql_query] is accepting a tainted value/s [t]!
-############# INPUT
+############# INPUT #############
 <?php
 $u = $_GET['username'];
 $ul = $_GET['ul'];
@@ -30,23 +30,28 @@ mysql_query(pg_query(($t)), ($koneksi));
 *-----------Line: 6---------*
 [*] @ Sensitive sink [pg_query] has beed corrected!
 [*] @ Sensitive sink [mysql_query] is accepting a tainted value/s coming from [_GET["username"]]!
-############# INPUT
+############# INPUT #############
 <?php
 echo mysql_real_escape_string($_GET["username"]);
 ?>
 *-----------Line: 0---------*
 [*] @ Sensitive sink [echo] is accepting a tainted value/s coming from [_GET["username"]]!
-############# INPUT
+############# INPUT #############
 <?php
 echo $_GET["username"].$_GET["USER"];
 ?>
 *-----------Line: 0---------*
 [*] @ Sensitive sink [echo] is accepting a tainted value/s coming from [_GET["USER"]]!
 [*] @ Sensitive sink [echo] is accepting a tainted value/s coming from [_GET["username"]]!
-############# INPUT
+############# INPUT #############
 <?php
 echo mysql_query(mysql_real_escape_string($_GET["username"]));
 ?>
 *-----------Line: 0---------*
 [*] @ Sensitive sink [mysql_query] has beed corrected!
 [*] @ Sensitive sink [echo] is accepting a tainted value/s coming from [_GET["username"]]!
+############# INPUT #############
+<?php
+echo $a.$_GET["U"];
+?>
+[*] @ Sensitive sink [echo] is accepting a tainted value/s coming from [_GET["U"]]!

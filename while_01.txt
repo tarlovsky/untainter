@@ -1,0 +1,8 @@
+<?php
+$i = $_GET["user"];
+$j = $_GET["user"];
+while($i.$j){
+    $a = $_GET["user"];
+    $b = $_GET["B"];
+}
+?>

@@ -1,0 +1,219 @@
+{
+	"kind": "program",
+	"children": [
+		{
+			"kind": "assign",
+			"operator": "=",
+			"left": {
+				"kind": "variable",
+				"name": "u",
+				"byref": false,
+				"curly": false
+			},
+			"right": {
+				"kind": "offsetlookup",
+				"what": {
+					"kind": "variable",
+					"name": "_GET",
+					"byref": false,
+					"curly": false
+				},
+				"offset": {
+					"kind": "string",
+					"value": "u",
+					"isDoubleQuote": true
+				}
+			}
+		},
+		{
+			"kind": "if",
+			"test": {
+				"kind": "assign",
+				"operator": "=",
+				"left": {
+					"kind": "variable",
+					"name": "u",
+					"byref": false,
+					"curly": false
+				},
+				"right": {
+					"kind": "offsetlookup",
+					"what": {
+						"kind": "variable",
+						"name": "_GET",
+						"byref": false,
+						"curly": false
+					},
+					"offset": {
+						"kind": "string",
+						"value": "p",
+						"isDoubleQuote": true
+					}
+				}
+			},
+			"body": {
+				"kind": "block",
+				"children": [
+					{
+						"kind": "assign",
+						"operator": "=",
+						"left": {
+							"kind": "variable",
+							"name": "p",
+							"byref": false,
+							"curly": false
+						},
+						"right": {
+							"kind": "variable",
+							"name": "u",
+							"byref": false,
+							"curly": false
+						}
+					}
+				]
+			},
+			"alternate": {
+				"kind": "if",
+				"test": {
+					"kind": "boolean",
+					"value": true
+				},
+				"body": {
+					"kind": "block",
+					"children": [
+						{
+							"kind": "assign",
+							"operator": "=",
+							"left": {
+								"kind": "variable",
+								"name": "u",
+								"byref": false,
+								"curly": false
+							},
+							"right": {
+								"kind": "offsetlookup",
+								"what": {
+									"kind": "variable",
+									"name": "_GET",
+									"byref": false,
+									"curly": false
+								},
+								"offset": {
+									"kind": "string",
+									"value": "newu",
+									"isDoubleQuote": false
+								}
+							}
+						}
+					]
+				},
+				"alternate": {
+					"kind": "if",
+					"test": {
+						"kind": "boolean",
+						"value": true
+					},
+					"body": {
+						"kind": "block",
+						"children": [
+							{
+								"kind": "assign",
+								"operator": "=",
+								"left": {
+									"kind": "variable",
+									"name": "b",
+									"byref": false,
+									"curly": false
+								},
+								"right": {
+									"kind": "offsetlookup",
+									"what": {
+										"kind": "variable",
+										"name": "_GET",
+										"byref": false,
+										"curly": false
+									},
+									"offset": {
+										"kind": "string",
+										"value": "b",
+										"isDoubleQuote": false
+									}
+								}
+							}
+						]
+					},
+					"alternate": {
+						"kind": "if",
+						"test": {
+							"kind": "boolean",
+							"value": true
+						},
+						"body": {
+							"kind": "block",
+							"children": [
+								{
+									"kind": "assign",
+									"operator": "=",
+									"left": {
+										"kind": "variable",
+										"name": "c",
+										"byref": false,
+										"curly": false
+									},
+									"right": {
+										"kind": "offsetlookup",
+										"what": {
+											"kind": "variable",
+											"name": "_GET",
+											"byref": false,
+											"curly": false
+										},
+										"offset": {
+											"kind": "string",
+											"value": "c",
+											"isDoubleQuote": false
+										}
+									}
+								}
+							]
+						},
+						"alternate": {
+							"kind": "block",
+							"children": [
+								{
+									"kind": "assign",
+									"operator": "=",
+									"left": {
+										"kind": "variable",
+										"name": "d",
+										"byref": false,
+										"curly": false
+									},
+									"right": {
+										"kind": "offsetlookup",
+										"what": {
+											"kind": "variable",
+											"name": "_GET",
+											"byref": false,
+											"curly": false
+										},
+										"offset": {
+											"kind": "string",
+											"value": "d",
+											"isDoubleQuote": false
+										}
+									}
+								}
+							]
+						},
+						"shortForm": false
+					},
+					"shortForm": false
+				},
+				"shortForm": false
+			},
+			"shortForm": false
+		}
+	],
+	"errors": []
+}

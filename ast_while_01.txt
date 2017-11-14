@@ -1,0 +1,127 @@
+{
+	"kind": "program",
+	"children": [
+		{
+			"kind": "assign",
+			"operator": "=",
+			"left": {
+				"kind": "variable",
+				"name": "i",
+				"byref": false,
+				"curly": false
+			},
+			"right": {
+				"kind": "offsetlookup",
+				"what": {
+					"kind": "variable",
+					"name": "_GET",
+					"byref": false,
+					"curly": false
+				},
+				"offset": {
+					"kind": "string",
+					"value": "user",
+					"isDoubleQuote": true
+				}
+			}
+		},
+		{
+			"kind": "assign",
+			"operator": "=",
+			"left": {
+				"kind": "variable",
+				"name": "j",
+				"byref": false,
+				"curly": false
+			},
+			"right": {
+				"kind": "offsetlookup",
+				"what": {
+					"kind": "variable",
+					"name": "_GET",
+					"byref": false,
+					"curly": false
+				},
+				"offset": {
+					"kind": "string",
+					"value": "user",
+					"isDoubleQuote": true
+				}
+			}
+		},
+		{
+			"kind": "while",
+			"test": {
+				"kind": "bin",
+				"type": ".",
+				"left": {
+					"kind": "variable",
+					"name": "i",
+					"byref": false,
+					"curly": false
+				},
+				"right": {
+					"kind": "variable",
+					"name": "j",
+					"byref": false,
+					"curly": false
+				}
+			},
+			"body": {
+				"kind": "block",
+				"children": [
+					{
+						"kind": "assign",
+						"operator": "=",
+						"left": {
+							"kind": "variable",
+							"name": "a",
+							"byref": false,
+							"curly": false
+						},
+						"right": {
+							"kind": "offsetlookup",
+							"what": {
+								"kind": "variable",
+								"name": "_GET",
+								"byref": false,
+								"curly": false
+							},
+							"offset": {
+								"kind": "string",
+								"value": "user",
+								"isDoubleQuote": true
+							}
+						}
+					},
+					{
+						"kind": "assign",
+						"operator": "=",
+						"left": {
+							"kind": "variable",
+							"name": "b",
+							"byref": false,
+							"curly": false
+						},
+						"right": {
+							"kind": "offsetlookup",
+							"what": {
+								"kind": "variable",
+								"name": "_GET",
+								"byref": false,
+								"curly": false
+							},
+							"offset": {
+								"kind": "string",
+								"value": "B",
+								"isDoubleQuote": true
+							}
+						}
+					}
+				]
+			},
+			"shortForm": false
+		}
+	],
+	"errors": []
+}

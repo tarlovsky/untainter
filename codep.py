@@ -30,6 +30,7 @@ untaint_func_names=set()
 entry_point_names=set()
 patterns=[]
 
+burst_taint = 0
 
 class Pattern:
     def __init__(self, name, entry=None, untaint_funcs=None, sinks=None):
@@ -123,18 +124,20 @@ def descend(child):
             return eval(child['kind']+'_handle(child)') 
         elif(child['kind'] == 'if'):
             return eval(child['kind']+'_handle(child)')
+        elif(child['kind'] == 'while'):
+            return eval(child['kind']+'_handle(child)')
         elif(child['kind'] == 'echo'):
             return eval('call_handle(child)')
         else:
             #switch funciton call here
             routes = goto(child["kind"])
-            
             for route in routes:
                 #argument list?
                 if isinstance(child[route], list):
                     res = []
                     for i in range(0, len(child[route])):
-                        return res.append(descend(child[route][i]))
+                        res.append( descend(child[route][i]) )
+                    return res
                 else:
                     #dives depper in cases line parenthesis->inner
                     return descend(child[route])
@@ -279,22 +282,67 @@ def bin_handle(child):
     #we shall only return tainted values from the binary concatenation
     return ret
 
-def if_handle(child):
+def while_handle(child):
+    
     test = descend(child['test'])
+    print("TEST")
+    print(test)
     if test is not None:
         test = test if isinstance(test, list) else [test]
         for v in test:
             if v and (v in tainted or is_entry_point(v)):
                 print("If cicle has been compromised through user input!")
+        print("test %s" % str(test))
 
     body_children = child['body']['children']
-    alternate_children = child['alternate']['children']
-    for ch in body_children+alternate_children:
-        descend(ch)
-                    
-    print("IFBIN"+str(test))
-    #for i, ch in enumerate(child["children"]):
-        #descend(ch)
+
+    print("Body Children:")
+
+    for bch in body_children:
+        print(tainted)
+        v = descend(bch)
+        
+        #all taint values inside test case taint every var in block
+        for i in test:
+            print(i,v[0])
+            if v[0] in tainted:
+                tainted[v[0]].extend(i)
+            else:
+                tainted[v[0]] = i
+            
+        print(tainted)
+
+    return None
+
+def if_handle(child):
+    test = descend(child['test'])
+    
+    if test is not None:
+        test = test if isinstance(test, list) else [test]
+        for v in test:
+            if v and (v in tainted or is_entry_point(v)):
+                print("If cicle has been compromised through user input!")
+        print("test %s" % str(test))
+    
+    
+    body_children = child['body']['children']
+    print("Body Children:")
+
+    for bch in body_children:
+        print(descend(bch))
+    
+    if 'alternate' in child.keys() and child['alternate'] is not None:
+        a = child['alternate']
+        if a['kind'] == 'block':
+            alternate_children = a['children'] 
+            print("Alternate Children:")
+            if alternate_children is not None:
+                for ach in alternate_children:
+                    print(descend(ach))
+        elif a['kind'] == 'if':
+            descend(a)
+         
+    
     return None
 
 def encapsed_handle(child):
@@ -544,7 +592,7 @@ def goto(x):
         'encapsed':['value'],
         'if': ['test', 'body', 'alternate'],
         'block':['children'],
-        'while':4,
+        'while':['test', 'body'],
         'do':5,
         'global':['name'],#name?
         'parenthesis':['inner'],

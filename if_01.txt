@@ -1,0 +1,14 @@
+<?php
+$u = $_GET["u"];
+if($u = $_GET["p"]){
+    $p = $u;
+}else if (True){
+    $u = $_GET['newu'];
+}else if (True){
+    $b = $_GET['b'];
+}else if (True){
+    $c = $_GET['c'];
+}else{
+    $d = $_GET['d'];
+}
+?>

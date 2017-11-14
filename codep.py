@@ -110,6 +110,8 @@ def descend(child):
             return offsetlookup_handle(child)
         elif('identifier' in child.keys()):
             return child['name']
+        else:
+            return None
     else:
         
         #TODO last; al of these calls can be collapsed into a single eval call.
@@ -292,16 +294,15 @@ def while_handle(child):
     
     body_children = child['body']['children']
 
-    print("Body Children:")
-
     for bch in body_children:
         v = descend(bch)
         #all taint values inside test case taint every var in block
-        for i in test:
-            if v[0] in tainted:
-                tainted[v[0]].extend(i)
-            else:
-                tainted[v[0]] = [i]
+        if test is not None:
+            for i in test:
+                if v[0] in tainted:
+                    tainted[v[0]].extend(i)
+                else:
+                    tainted[v[0]] = [i]
 
     return None
 

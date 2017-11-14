@@ -1,10 +1,10 @@
 <?php
 $i = $_FILES["user"];
 $j = $_GET["user"];
-while($i.$j){
-    $a = $_GET["user"];
-    $b = $_GET["B"];
-    $c = "STR";
+while(True){
+    $a = True;
+    $b = "HELO";
+    $c = $_GET["c"];
 }
 mysql_query($c);
 ?>

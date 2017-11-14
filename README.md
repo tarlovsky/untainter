@@ -55,3 +55,17 @@ echo mysql_query(mysql_real_escape_string($_GET["username"]));
 echo $a.$_GET["U"];
 ?>
 [*] @ Sensitive sink [echo] is accepting a tainted value/s coming from [_GET["U"]]!
+############# INPUT #############
+<?php
+$i = $_FILES["user"];
+$j = $_GET["user"];
+while(True){
+    $a = True;
+    $b = "HELO";
+    $c = $_GET["c"];
+}
+mysql_query($c);
+?>
+We overestimate
+*-----------Line: 3---------*
+[*] @ Sensitive sink [mysql_query] is accepting a tainted value/s [c]!

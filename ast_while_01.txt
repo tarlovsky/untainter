@@ -52,20 +52,8 @@
 		{
 			"kind": "while",
 			"test": {
-				"kind": "bin",
-				"type": ".",
-				"left": {
-					"kind": "variable",
-					"name": "i",
-					"byref": false,
-					"curly": false
-				},
-				"right": {
-					"kind": "variable",
-					"name": "j",
-					"byref": false,
-					"curly": false
-				}
+				"kind": "boolean",
+				"value": true
 			},
 			"body": {
 				"kind": "block",
@@ -80,18 +68,8 @@
 							"curly": false
 						},
 						"right": {
-							"kind": "offsetlookup",
-							"what": {
-								"kind": "variable",
-								"name": "_GET",
-								"byref": false,
-								"curly": false
-							},
-							"offset": {
-								"kind": "string",
-								"value": "user",
-								"isDoubleQuote": true
-							}
+							"kind": "boolean",
+							"value": true
 						}
 					},
 					{
@@ -104,18 +82,9 @@
 							"curly": false
 						},
 						"right": {
-							"kind": "offsetlookup",
-							"what": {
-								"kind": "variable",
-								"name": "_GET",
-								"byref": false,
-								"curly": false
-							},
-							"offset": {
-								"kind": "string",
-								"value": "B",
-								"isDoubleQuote": true
-							}
+							"kind": "string",
+							"value": "HELO",
+							"isDoubleQuote": true
 						}
 					},
 					{
@@ -128,9 +97,18 @@
 							"curly": false
 						},
 						"right": {
-							"kind": "string",
-							"value": "STR",
-							"isDoubleQuote": true
+							"kind": "offsetlookup",
+							"what": {
+								"kind": "variable",
+								"name": "_GET",
+								"byref": false,
+								"curly": false
+							},
+							"offset": {
+								"kind": "string",
+								"value": "c",
+								"isDoubleQuote": true
+							}
 						}
 					}
 				]

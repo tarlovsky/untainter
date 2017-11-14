@@ -14,7 +14,7 @@
 				"kind": "offsetlookup",
 				"what": {
 					"kind": "variable",
-					"name": "_GET",
+					"name": "_FILES",
 					"byref": false,
 					"curly": false
 				},
@@ -117,10 +117,41 @@
 								"isDoubleQuote": true
 							}
 						}
+					},
+					{
+						"kind": "assign",
+						"operator": "=",
+						"left": {
+							"kind": "variable",
+							"name": "c",
+							"byref": false,
+							"curly": false
+						},
+						"right": {
+							"kind": "string",
+							"value": "STR",
+							"isDoubleQuote": true
+						}
 					}
 				]
 			},
 			"shortForm": false
+		},
+		{
+			"kind": "call",
+			"what": {
+				"kind": "identifier",
+				"resolution": "uqn",
+				"name": "mysql_query"
+			},
+			"arguments": [
+				{
+					"kind": "variable",
+					"name": "c",
+					"byref": false,
+					"curly": false
+				}
+			]
 		}
 	],
 	"errors": []

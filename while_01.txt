@@ -1,8 +1,10 @@
 <?php
-$i = $_GET["user"];
+$i = $_FILES["user"];
 $j = $_GET["user"];
 while($i.$j){
     $a = $_GET["user"];
     $b = $_GET["B"];
+    $c = "STR";
 }
+mysql_query($c);
 ?>

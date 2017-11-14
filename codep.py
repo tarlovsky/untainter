@@ -285,32 +285,23 @@ def bin_handle(child):
 def while_handle(child):
     
     test = descend(child['test'])
-    print("TEST")
-    print(test)
+    
     if test is not None:
         test = test if isinstance(test, list) else [test]
-        for v in test:
-            if v and (v in tainted or is_entry_point(v)):
-                print("If cicle has been compromised through user input!")
-        print("test %s" % str(test))
-
+        #print("test %s" % str(test))
+    
     body_children = child['body']['children']
 
     print("Body Children:")
 
     for bch in body_children:
-        print(tainted)
         v = descend(bch)
-        
         #all taint values inside test case taint every var in block
         for i in test:
-            print(i,v[0])
             if v[0] in tainted:
                 tainted[v[0]].extend(i)
             else:
-                tainted[v[0]] = i
-            
-        print(tainted)
+                tainted[v[0]] = [i]
 
     return None
 

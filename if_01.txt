@@ -1,13 +1,18 @@
 <?php
 $u = $_GET["u"];
-if($u = $_GET["p"]){
+$u1 = $_GET["u1"];
+$u2 = $_GET["u2"];
+$u3 = $_GET["u3"];
+$u4 = $_GET["u4"];
+if($u){
     $p = $u;
-}else if (True){
-    $u = $_GET['newu'];
+}else if ($u1){
+    $a = $_GET['a'];
 }else if (True){
     $b = $_GET['b'];
-}else if (True){
+}else if ($u3){
     $c = $_GET['c'];
+    mysql_query($b);
 }else{
     $d = $_GET['d'];
 }

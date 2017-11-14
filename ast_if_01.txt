@@ -26,30 +26,108 @@
 			}
 		},
 		{
-			"kind": "if",
-			"test": {
-				"kind": "assign",
-				"operator": "=",
-				"left": {
+			"kind": "assign",
+			"operator": "=",
+			"left": {
+				"kind": "variable",
+				"name": "u1",
+				"byref": false,
+				"curly": false
+			},
+			"right": {
+				"kind": "offsetlookup",
+				"what": {
 					"kind": "variable",
-					"name": "u",
+					"name": "_GET",
 					"byref": false,
 					"curly": false
 				},
-				"right": {
-					"kind": "offsetlookup",
-					"what": {
-						"kind": "variable",
-						"name": "_GET",
-						"byref": false,
-						"curly": false
-					},
-					"offset": {
-						"kind": "string",
-						"value": "p",
-						"isDoubleQuote": true
-					}
+				"offset": {
+					"kind": "string",
+					"value": "u1",
+					"isDoubleQuote": true
 				}
+			}
+		},
+		{
+			"kind": "assign",
+			"operator": "=",
+			"left": {
+				"kind": "variable",
+				"name": "u2",
+				"byref": false,
+				"curly": false
+			},
+			"right": {
+				"kind": "offsetlookup",
+				"what": {
+					"kind": "variable",
+					"name": "_GET",
+					"byref": false,
+					"curly": false
+				},
+				"offset": {
+					"kind": "string",
+					"value": "u2",
+					"isDoubleQuote": true
+				}
+			}
+		},
+		{
+			"kind": "assign",
+			"operator": "=",
+			"left": {
+				"kind": "variable",
+				"name": "u3",
+				"byref": false,
+				"curly": false
+			},
+			"right": {
+				"kind": "offsetlookup",
+				"what": {
+					"kind": "variable",
+					"name": "_GET",
+					"byref": false,
+					"curly": false
+				},
+				"offset": {
+					"kind": "string",
+					"value": "u3",
+					"isDoubleQuote": true
+				}
+			}
+		},
+		{
+			"kind": "assign",
+			"operator": "=",
+			"left": {
+				"kind": "variable",
+				"name": "u4",
+				"byref": false,
+				"curly": false
+			},
+			"right": {
+				"kind": "offsetlookup",
+				"what": {
+					"kind": "variable",
+					"name": "_GET",
+					"byref": false,
+					"curly": false
+				},
+				"offset": {
+					"kind": "string",
+					"value": "u4",
+					"isDoubleQuote": true
+				}
+			}
+		},
+		{
+			"kind": "if",
+			"test": {
+				"kind": "variable",
+				"name": "u",
+				"byref": false,
+				"curly": false
 			},
 			"body": {
 				"kind": "block",
@@ -75,8 +153,10 @@
 			"alternate": {
 				"kind": "if",
 				"test": {
-					"kind": "boolean",
-					"value": true
+					"kind": "variable",
+					"name": "u1",
+					"byref": false,
+					"curly": false
 				},
 				"body": {
 					"kind": "block",
@@ -86,7 +166,7 @@
 							"operator": "=",
 							"left": {
 								"kind": "variable",
-								"name": "u",
+								"name": "a",
 								"byref": false,
 								"curly": false
 							},
@@ -100,7 +180,7 @@
 								},
 								"offset": {
 									"kind": "string",
-									"value": "newu",
+									"value": "a",
 									"isDoubleQuote": false
 								}
 							}
@@ -145,8 +225,10 @@
 					"alternate": {
 						"kind": "if",
 						"test": {
-							"kind": "boolean",
-							"value": true
+							"kind": "variable",
+							"name": "u3",
+							"byref": false,
+							"curly": false
 						},
 						"body": {
 							"kind": "block",
@@ -174,6 +256,22 @@
 											"isDoubleQuote": false
 										}
 									}
+								},
+								{
+									"kind": "call",
+									"what": {
+										"kind": "identifier",
+										"resolution": "uqn",
+										"name": "mysql_query"
+									},
+									"arguments": [
+										{
+											"kind": "variable",
+											"name": "b",
+											"byref": false,
+											"curly": false
+										}
+									]
 								}
 							]
 						},

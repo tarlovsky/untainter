@@ -1,6 +1,6 @@
 <?php
-$i = $_FILES["user"];
-$j = $_GET["user"];
+$i1 = $_FILES["user"];
+$j1 = $_GET["user"];
 while(True){
     $a = True;
     $b = "HELO";

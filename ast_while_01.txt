@@ -6,7 +6,7 @@
 			"operator": "=",
 			"left": {
 				"kind": "variable",
-				"name": "i",
+				"name": "i1",
 				"byref": false,
 				"curly": false
 			},
@@ -30,7 +30,7 @@
 			"operator": "=",
 			"left": {
 				"kind": "variable",
-				"name": "j",
+				"name": "j1",
 				"byref": false,
 				"curly": false
 			},

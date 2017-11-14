@@ -30,7 +30,7 @@ untaint_func_names=set()
 entry_point_names=set()
 patterns=[]
 
-burst_taint = 0
+if_chain_tainters=[]
 
 class Pattern:
     def __init__(self, name, entry=None, untaint_funcs=None, sinks=None):
@@ -300,38 +300,49 @@ def while_handle(child):
         if test is not None:
             for i in test:
                 if v[0] in tainted:
-                    tainted[v[0]].extend(i)
+                    tainted[v[0]].extend([i])
                 else:
                     tainted[v[0]] = [i]
 
     return None
 
 def if_handle(child):
+    global if_chain_tainters
     test = descend(child['test'])
     
     if test is not None:
         test = test if isinstance(test, list) else [test]
-        for v in test:
-            if v and (v in tainted or is_entry_point(v)):
-                print("If cicle has been compromised through user input!")
-        print("test %s" % str(test))
-    
     
     body_children = child['body']['children']
-    print("Body Children:")
 
     for bch in body_children:
-        print(descend(bch))
+        v = descend(bch)
+        #print("TEST:" + str(test))
+        #print(v)
+        
+        # get all if and else if tests until current block into if_chain_tainters
+        if test is not None:
+            for i in test:
+                #print(i)
+                if_chain_tainters.append(i)
+        
+        
+        for ifcht in if_chain_tainters:
+            if v[0] in tainted:
+                tainted[v[0]].extend([ifcht])
+            else:
+                tainted[v[0]] = [ifcht]
+        
     
     if 'alternate' in child.keys() and child['alternate'] is not None:
         a = child['alternate']
-        if a['kind'] == 'block':
+        
+        if a['kind'] == 'block':#if block content has children(lines)
             alternate_children = a['children'] 
-            print("Alternate Children:")
             if alternate_children is not None:
                 for ach in alternate_children:
-                    print(descend(ach))
-        elif a['kind'] == 'if':
+                    v = descend(ach)
+        elif a['kind'] == 'if':#nested if
             descend(a)
          
     
@@ -416,7 +427,7 @@ def call_handle(child):
                 if original_entries and is_sink(original_entries, id):
                     
                     tainted_count+=1
-                    #print(v)
+                    #print(tainted)
                     
                     #could be direct function call within parameter placing
                     if isinstance(v, tuple):

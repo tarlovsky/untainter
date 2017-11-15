@@ -154,6 +154,185 @@
 					}
 				}
 			]
+		},
+		{
+			"kind": "exit",
+			"status": {
+				"kind": "offsetlookup",
+				"what": {
+					"kind": "variable",
+					"name": "_GET",
+					"byref": false,
+					"curly": false
+				},
+				"offset": {
+					"kind": "string",
+					"value": "get",
+					"isDoubleQuote": true
+				}
+			}
+		},
+		{
+			"kind": "print",
+			"arguments": {
+				"kind": "offsetlookup",
+				"what": {
+					"kind": "variable",
+					"name": "_GET",
+					"byref": false,
+					"curly": false
+				},
+				"offset": {
+					"kind": "string",
+					"value": "print",
+					"isDoubleQuote": true
+				}
+			}
+		},
+		{
+			"kind": "include",
+			"once": false,
+			"require": false,
+			"target": {
+				"kind": "parenthesis",
+				"inner": {
+					"kind": "offsetlookup",
+					"what": {
+						"kind": "variable",
+						"name": "_GET",
+						"byref": false,
+						"curly": false
+					},
+					"offset": {
+						"kind": "string",
+						"value": "print",
+						"isDoubleQuote": true
+					}
+				}
+			}
+		},
+		{
+			"kind": "include",
+			"once": false,
+			"require": true,
+			"target": {
+				"kind": "parenthesis",
+				"inner": {
+					"kind": "offsetlookup",
+					"what": {
+						"kind": "variable",
+						"name": "_GET",
+						"byref": false,
+						"curly": false
+					},
+					"offset": {
+						"kind": "string",
+						"value": "REQUIRE",
+						"isDoubleQuote": true
+					}
+				}
+			}
+		},
+		{
+			"kind": "call",
+			"what": {
+				"kind": "identifier",
+				"resolution": "uqn",
+				"name": "unlink"
+			},
+			"arguments": [
+				{
+					"kind": "offsetlookup",
+					"what": {
+						"kind": "variable",
+						"name": "_GET",
+						"byref": false,
+						"curly": false
+					},
+					"offset": {
+						"kind": "string",
+						"value": "unlink_file",
+						"isDoubleQuote": false
+					}
+				}
+			]
+		},
+		{
+			"kind": "call",
+			"what": {
+				"kind": "identifier",
+				"resolution": "uqn",
+				"name": "shell_exec"
+			},
+			"arguments": [
+				{
+					"kind": "offsetlookup",
+					"what": {
+						"kind": "variable",
+						"name": "_FILES",
+						"byref": false,
+						"curly": false
+					},
+					"offset": {
+						"kind": "string",
+						"value": "SHELLCODE.txt",
+						"isDoubleQuote": false
+					}
+				}
+			]
+		},
+		{
+			"kind": "call",
+			"what": {
+				"kind": "identifier",
+				"resolution": "uqn",
+				"name": "pcntl_exec"
+			},
+			"arguments": [
+				{
+					"kind": "offsetlookup",
+					"what": {
+						"kind": "variable",
+						"name": "_FILES",
+						"byref": false,
+						"curly": false
+					},
+					"offset": {
+						"kind": "string",
+						"value": "program",
+						"isDoubleQuote": false
+					}
+				},
+				{
+					"kind": "offsetlookup",
+					"what": {
+						"kind": "variable",
+						"name": "_FILES",
+						"byref": false,
+						"curly": false
+					},
+					"offset": {
+						"kind": "string",
+						"value": "args1",
+						"isDoubleQuote": false
+					}
+				}
+			]
+		},
+		{
+			"kind": "call",
+			"what": {
+				"kind": "identifier",
+				"resolution": "uqn",
+				"name": "exec"
+			},
+			"arguments": [
+				{
+					"kind": "string",
+					"value": "alex",
+					"isDoubleQuote": true
+				}
+			]
 		}
 	],
 	"errors": []

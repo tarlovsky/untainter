@@ -66,26 +66,30 @@ def init(names=None):
             )
     #check code snippets one by one
     for fname in names:
-        try:
-            with open(str(fname),'r') as current_tree:
-                current_ast=json.load(current_tree) 
-                
-                for i, ch in enumerate(current_ast["children"]):
-                    print("\n*-----------Line: %d---------*" % i)
-                    descend(ch)
-                print('\nTainted variables: '+str(tainted))
-                #cleanup for next file
-                
-                return
-                parse(arr)
 
-        finally:
-            if len(snippet_files) > 0:
-                f=snippet_files.pop()
-                if f is not None:
-                    f.close()
+        with open(str(fname),'r') as current_tree:
+            current_ast=json.load(current_tree) 
+            print("Processing %s" % (fname))
+            for i, ch in enumerate(current_ast["children"]):
+                print("\n*-----------Line: %d---------*" % i)
+                descend(ch)
+            #print('\nTainted variables: '+str(tainted))
+            print_tainted()
+            #cleanup for next file
+            
+            return
 
+def print_tainted():
+    global tainted
+    for k in tainted.keys():
+        s = "[%s]: " % (k)
+        
+        for v in tainted[k]:
+            s += (str(v)+',')
+            
+        print(s.strip(','))
 
+            
 
 #not really terminals but hey 
 terminals=[

@@ -8,26 +8,26 @@ except ImportError:
     import queue as Q
 
 
-
+# ported from first version 
 PATTERNS_FNAME="lookup_list"
 PHP_VARS_REG='(\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)'
 PHP_VAR_CHARS='[a-z][A-Z][0-9]'
 PHP_CONCAT_OPS_1="\.|\+|\*|\/"
-
-
-#need coma for this
-# (2, '$b', ' str_cat($b = $_GET["vuln"]), htmlentities($b)')
 PHP_CONCAT_OPS=('.', '+', ' ', ',')
 OPERATORS='-+*/|~^&'
-#snippet files to clean
-snippet_files=[]
 EQUALS_CHAR='='
 
+
+
+#new to each file
+__linenumber__ = 0
 tainted={}
 current_ast={}
+
 sensitive_sink_names=set()
 untaint_func_names=set()
 entry_point_names=set()
+# patterns retrieved from [http://awap.sourceforge.net/support.html]
 patterns=[]
 
 if_chain_tainters=[]
@@ -43,7 +43,7 @@ class Pattern:
      
 
 def init(names=None):
-    global patterns, PATTERNS_FNAME, snippet_files, tainted
+    global patterns, PATTERNS_FNAME, tainted, __linenumber__
 
     #load vuln patterns from file into memory
     pattern_files=open(PATTERNS_FNAME,'r').read().strip().split('\n\n')
@@ -69,18 +69,24 @@ def init(names=None):
 
         with open(str(fname),'r') as current_tree:
             current_ast=json.load(current_tree) 
+            print("########################")
             print("Processing %s" % (fname))
-            for i, ch in enumerate(current_ast["children"]):
-                print("\n*-----------Line: %d---------*" % i)
+            __linenumber__ = 0
+            for __linenumber__, ch in enumerate(current_ast["children"]):
+                #print("\n*-----------Line: %d---------*" % i)
                 descend(ch)
             #print('\nTainted variables: '+str(tainted))
             print_tainted()
-            #cleanup for next file
             
-            return
+            #cleanup for next file
+            tainted.clear()
+            
+    return
 
 def print_tainted():
     global tainted
+    print("------------Tainted values-----------")
+    
     for k in tainted.keys():
         s = "[%s]: " % (k)
         
@@ -88,7 +94,7 @@ def print_tainted():
             s += (str(v)+',')
             
         print(s.strip(','))
-
+    print("-------------------------------------")
             
 
 #not really terminals but hey 
@@ -364,7 +370,7 @@ def encapsed_handle(child):
     return ret
 
 def call_handle(child):
-    global tainted
+    global tainted, __linenumber__
 
     #print("TAINTED: %s" % str(tainted))
     
@@ -463,12 +469,12 @@ def call_handle(child):
                             #print('[*] @ Sensitive sink [%s] has beed corrected!' % (id))
                             #ret = 0
                         else:
-                            print('[*] @ Sensitive sink [%s] is accepting a tainted value/s [%s]!' % (id, str(detuple(v))))
+                            print('[Line:%d] @ Sensitive sink [%s] is accepting a tainted value/s [%s]!' % (__linenumber__ + 1, id, str(detuple(v))))
                         ret = 0
                 
                     elif is_entry_point(v):
                         taint_update.append( (id, v) ) 
-                        print('[*] @ Sensitive sink [%s] is accepting a tainted value/s coming from [%s]!' % (id, str(detuple(v))))
+                        print('Line:%d] @ Sensitive sink [%s] is accepting a tainted value/s coming from [%s]!' % (__linenumber__ + 1, id))
                     
                 #does function untaint any of the original entries?
                 elif is_untaint(original_entries, id):
@@ -480,7 +486,7 @@ def call_handle(child):
                             taint_update.append( (id, t) ) 
 
         if tainted_count > 0 and corrected > 0 and corrected == tainted_count:
-            print('[*] @ Sensitive sink [%s] has beed corrected!' % (id))                
+            print('[Line:%d] @ Sensitive sink [%s] has beed corrected!' % (__linenumber__ + 1, id))                
         
         if len(taint_update) > 0:
             return taint_update

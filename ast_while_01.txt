@@ -158,18 +158,28 @@
 		{
 			"kind": "exit",
 			"status": {
-				"kind": "offsetlookup",
+				"kind": "call",
 				"what": {
-					"kind": "variable",
-					"name": "_GET",
-					"byref": false,
-					"curly": false
+					"kind": "identifier",
+					"resolution": "uqn",
+					"name": "htmlentities"
 				},
-				"offset": {
-					"kind": "string",
-					"value": "get",
-					"isDoubleQuote": true
-				}
+				"arguments": [
+					{
+						"kind": "offsetlookup",
+						"what": {
+							"kind": "variable",
+							"name": "_GET",
+							"byref": false,
+							"curly": false
+						},
+						"offset": {
+							"kind": "string",
+							"value": "get",
+							"isDoubleQuote": true
+						}
+					}
+				]
 			}
 		},
 		{
@@ -331,6 +341,39 @@
 					"kind": "string",
 					"value": "alex",
 					"isDoubleQuote": true
+				}
+			]
+		},
+		{
+			"kind": "call",
+			"what": {
+				"kind": "identifier",
+				"resolution": "uqn",
+				"name": "file_put_contents"
+			},
+			"arguments": [
+				{
+					"kind": "bin",
+					"type": ".",
+					"left": {
+						"kind": "string",
+						"value": "astring",
+						"isDoubleQuote": true
+					},
+					"right": {
+						"kind": "offsetlookup",
+						"what": {
+							"kind": "variable",
+							"name": "_FILES",
+							"byref": false,
+							"curly": false
+						},
+						"offset": {
+							"kind": "string",
+							"value": "f",
+							"isDoubleQuote": true
+						}
+					}
 				}
 			]
 		}

@@ -121,3 +121,71 @@ if($u){
 Tainted variables: {u'a': [u'_GET["a"]', u'u', u'u1'], u'c': [u'_GET["c"]', u'u', u'u1', u'u3'], u'b': [u'_GET["b"]', u'u', u'u1'], u'd': [u'_GET["d"]'], u'u4': [u'_GET["u4"]'], u'u1': [u'_GET["u1"]'], u'u3': [u'_GET["u3"]'], u'u2': [u'_GET["u2"]'], u'p': [u'_GET["u"]', u'u'], u'u': [u'_GET["u"]'], (u'mysql_query', u'_GET["b"]'): [u'u', u'u1', u'u3', u'u3']}
 
 u'c': [u'_GET["c"]', u'u', u'u1', u'u3']
+############# INPUT #############
+<?php
+$i1 = $_FILES["user"];
+$j1 = $_GET["user"];
+while(True){
+    $a = True;
+    $b = "HELO";
+    $c = $_GET["c"];
+}
+mysql_query($c);
+shell_exec($_GET["incl"]);
+die($_GET["get"]);
+print $_GET["print"];
+include($_GET["print"]);
+require($_GET["REQUIRE"]);
+########################
+Processing ast_while_01.txt
+Possible [SQL injection] @ [Line:4] Sensitive sink [mysql_query] is accepting a tainted value/s [c]!
+Possible [OS Command Injection] @ [Line:5] Sensitive sink [shell_exec] is accepting a tainted value/s coming from [_GET["incl"]]!
+Possible [Cross site scripting] @ [Line:6] Sensitive sink [exit] is accepting a tainted value/s coming from [_GET["get"]]!
+Possible [Cross site scripting] @ [Line:7] Sensitive sink [print] is accepting a tainted value/s coming from [_GET["print"]]!
+Possible [Remote File Inclusion] @ [Line:8] Sensitive sink [include] is accepting a tainted value/s coming from [_GET["print"]]!
+Possible [Remote File Inclusion] @ [Line:9] Sensitive sink [include] is accepting a tainted value/s coming from [_GET["REQUIRE"]]!
+------------Tainted values-----------
+[i1]: _FILES["user"]
+[c]: _GET["c"]
+[j1]: _GET["user"]
+-------------------------------------
+?>
+############# INPUT #############
+<?php
+$i1 = $_FILES["user"];
+$j1 = $_GET["user"];
+while(True){
+    $a = True;
+    $b = "HELO";
+    $c = $_GET["c"];
+}
+mysql_query($c);
+shell_exec($_GET["incl"]);
+die(htmlentities($_GET["get"]));
+print $_GET["print"];
+include($_GET["print"]);
+require($_GET["REQUIRE"]);
+unlink ($_GET['unlink_file']);
+shell_exec($_FILES['SHELLCODE.txt']);
+pcntl_exec($_FILES['program'], $_FILES['args1']);
+exec("alex");
+file_put_contents("astring".$_FILES["f"]);
+?>
+########################
+Processing ast_while_01.txt
+Possible [SQL injection] @ [Line:4] Sensitive sink [mysql_query] is accepting a tainted value/s [c]!
+Possible [OS Command Injection] @ [Line:5] Sensitive sink [shell_exec] is accepting a tainted value/s coming from [_GET["incl"]]!
+Possible [Cross site scripting] @ [Line:6] Sensitive sink [exit] has beed corrected!
+Possible [Cross site scripting] @ [Line:7] Sensitive sink [print] is accepting a tainted value/s coming from [_GET["print"]]!
+Possible [Remote File Inclusion] @ [Line:8] Sensitive sink [include] is accepting a tainted value/s coming from [_GET["print"]]!
+Possible [Remote File Inclusion] @ [Line:9] Sensitive sink [include] is accepting a tainted value/s coming from [_GET["REQUIRE"]]!
+Possible [Remote File Inclusion] @ [Line:10] Sensitive sink [unlink] is accepting a tainted value/s coming from [_GET["unlink_file"]]!
+Possible [OS Command Injection] @ [Line:11] Sensitive sink [shell_exec] is accepting a tainted value/s coming from [_FILES["SHELLCODE.txt"]]!
+Possible [OS Command Injection] @ [Line:12] Sensitive sink [pcntl_exec] is accepting a tainted value/s coming from [_FILES["program"]]!
+Possible [OS Command Injection] @ [Line:12] Sensitive sink [pcntl_exec] is accepting a tainted value/s coming from [_FILES["args1"]]!
+Possible [Cross site scripting] @ [Line:14] Sensitive sink [file_put_contents] is accepting a tainted value/s coming from [_FILES["f"]]!
+------------Tainted values-----------
+[i1]: _FILES["user"]
+[c]: _GET["c"]
+[j1]: _GET["user"]
+-------------------------------------

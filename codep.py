@@ -388,12 +388,9 @@ def call_handle(child):
     
     original_entry = None
 
-
     args = child[ goto(child['kind'])[0] ]
     if not isinstance(args, list):
         args = [args]
-
-    
 
     if child['kind'] == 'call':
         id = descend(child['what'])
@@ -403,7 +400,6 @@ def call_handle(child):
     
     argv = []
 
-    
     for arg in args:
         #print("%s ARGS inside : %s\n" % (id ,str(arg)))
         temp = descend(arg)
@@ -442,7 +438,7 @@ def call_handle(child):
         #print(tainted)
         
         for v in argv:
-            print(v)
+            
             original_entries=[]
             
             if v is not None:

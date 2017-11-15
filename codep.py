@@ -342,6 +342,7 @@ def if_handle(child):
             if alternate_children is not None:
                 for ach in alternate_children:
                     v = descend(ach)
+            del if_chain_tainters[:]
         elif a['kind'] == 'if':#nested if
             descend(a)
          

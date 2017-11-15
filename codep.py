@@ -1,12 +1,12 @@
 #!/usr/bin/python
+# Usage:
+# python codep.py list of filenames separated by spaces
+# files will be parsed independently 
+# Made as group project for SSof in IST in 2017 Oct-Nov
+# 
+
 import sys
 import json
-import re
-try:
-    import Queue as Q # versions prior to 3
-except ImportError:
-    import queue as Q
-
 
 # ported from first version 
 PATTERNS_FNAME="lookup_list"
@@ -16,8 +16,6 @@ PHP_CONCAT_OPS_1="\.|\+|\*|\/"
 PHP_CONCAT_OPS=('.', '+', ' ', ',')
 OPERATORS='-+*/|~^&'
 EQUALS_CHAR='='
-
-
 
 #new to each file
 __linenumber__ = 0
@@ -40,8 +38,16 @@ class Pattern:
         self.untaint_funcs=untaint_funcs[:]
         self.sinks=sinks[:]
 
-     
-
+#gets vulnerabiity name from a known pattern list
+def get_vulnerability_name(sink_id):
+    global patterns
+    
+    for p in patterns:
+        for e in p.sinks:
+            if sink_id in e:
+                return p.name
+    return None
+    
 def init(names=None):
     global patterns, PATTERNS_FNAME, tainted, __linenumber__
 
@@ -83,6 +89,7 @@ def init(names=None):
             
     return
 
+#prints all tainted variables, usually at the end of the program
 def print_tainted():
     global tainted
     print("------------Tainted values-----------")
@@ -97,7 +104,8 @@ def print_tainted():
     print("-------------------------------------")
             
 
-#not really terminals but hey 
+#not all of them really terminals
+#variable had to be inclueded
 terminals=[
     u'identifier',
     u'variable',
@@ -109,6 +117,7 @@ terminals=[
     u'inline'
 ]
 
+#function that goes down a level on the ast
 def descend(child):
     global terminals, entry_point_names, tainted
     
@@ -138,7 +147,7 @@ def descend(child):
             return eval(child['kind']+'_handle(child)')
         elif(child['kind'] == 'while'):
             return eval(child['kind']+'_handle(child)')
-        elif(child['kind'] == 'echo'):
+        elif(child['kind'] in 'echo', 'include', 'print'):
             return eval('call_handle(child)')
         else:
             #switch funciton call here
@@ -160,6 +169,7 @@ def descend(child):
 def detuple(tup):
     """ gets argument value from nested function calls """
     """ (u'pg_escape_string', (u'mysql_real_escape_string', u'u1')) """
+    """ gives us u1 """
     if isinstance(tup, tuple):
         tup = tup[1]
         return detuple(tup)
@@ -469,12 +479,12 @@ def call_handle(child):
                             #print('[*] @ Sensitive sink [%s] has beed corrected!' % (id))
                             #ret = 0
                         else:
-                            print('[Line:%d] @ Sensitive sink [%s] is accepting a tainted value/s [%s]!' % (__linenumber__ + 1, id, str(detuple(v))))
+                            print('Possible [%s] @ [Line:%d] Sensitive sink [%s] is accepting a tainted value/s [%s]!' % (get_vulnerability_name(id), __linenumber__ + 1, id, str(detuple(v))))
                         ret = 0
-                
+
                     elif is_entry_point(v):
                         taint_update.append( (id, v) ) 
-                        print('Line:%d] @ Sensitive sink [%s] is accepting a tainted value/s coming from [%s]!' % (__linenumber__ + 1, id))
+                        print('Possible [%s] @ [Line:%d] Sensitive sink [%s] is accepting a tainted value/s coming from [%s]!' % (get_vulnerability_name(id), __linenumber__ + 1, id, v))
                     
                 #does function untaint any of the original entries?
                 elif is_untaint(original_entries, id):
@@ -486,7 +496,7 @@ def call_handle(child):
                             taint_update.append( (id, t) ) 
 
         if tainted_count > 0 and corrected > 0 and corrected == tainted_count:
-            print('[Line:%d] @ Sensitive sink [%s] has beed corrected!' % (__linenumber__ + 1, id))                
+            print('Possible [%s] @ [Line:%d] Sensitive sink [%s] has beed corrected!' % (get_vulnerability_name(id), __linenumber__ + 1,  id))                
         
         if len(taint_update) > 0:
             return taint_update

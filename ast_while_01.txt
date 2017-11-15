@@ -130,6 +130,30 @@
 					"curly": false
 				}
 			]
+		},
+		{
+			"kind": "call",
+			"what": {
+				"kind": "identifier",
+				"resolution": "uqn",
+				"name": "shell_exec"
+			},
+			"arguments": [
+				{
+					"kind": "offsetlookup",
+					"what": {
+						"kind": "variable",
+						"name": "_GET",
+						"byref": false,
+						"curly": false
+					},
+					"offset": {
+						"kind": "string",
+						"value": "incl",
+						"isDoubleQuote": true
+					}
+				}
+			]
 		}
 	],
 	"errors": []

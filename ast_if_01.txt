@@ -153,10 +153,8 @@
 			"alternate": {
 				"kind": "if",
 				"test": {
-					"kind": "variable",
-					"name": "u1",
-					"byref": false,
-					"curly": false
+					"kind": "boolean",
+					"value": true
 				},
 				"body": {
 					"kind": "block",
@@ -180,8 +178,8 @@
 								},
 								"offset": {
 									"kind": "string",
-									"value": "a",
-									"isDoubleQuote": false
+									"value": "USER",
+									"isDoubleQuote": true
 								}
 							}
 						}
@@ -190,8 +188,10 @@
 				"alternate": {
 					"kind": "if",
 					"test": {
-						"kind": "boolean",
-						"value": true
+						"kind": "variable",
+						"name": "u1",
+						"byref": false,
+						"curly": false
 					},
 					"body": {
 						"kind": "block",
@@ -225,10 +225,8 @@
 					"alternate": {
 						"kind": "if",
 						"test": {
-							"kind": "variable",
-							"name": "u3",
-							"byref": false,
-							"curly": false
+							"kind": "boolean",
+							"value": true
 						},
 						"body": {
 							"kind": "block",
@@ -258,20 +256,30 @@
 									}
 								},
 								{
-									"kind": "call",
-									"what": {
-										"kind": "identifier",
-										"resolution": "uqn",
-										"name": "mysql_query"
+									"kind": "assign",
+									"operator": "=",
+									"left": {
+										"kind": "variable",
+										"name": "a",
+										"byref": false,
+										"curly": false
 									},
-									"arguments": [
-										{
-											"kind": "variable",
-											"name": "b",
-											"byref": false,
-											"curly": false
-										}
-									]
+									"right": {
+										"kind": "call",
+										"what": {
+											"kind": "identifier",
+											"resolution": "uqn",
+											"name": "mysql_escape_string"
+										},
+										"arguments": [
+											{
+												"kind": "variable",
+												"name": "a",
+												"byref": false,
+												"curly": false
+											}
+										]
+									}
 								}
 							]
 						},
@@ -311,6 +319,70 @@
 				"shortForm": false
 			},
 			"shortForm": false
+		},
+		{
+			"kind": "if",
+			"test": {
+				"kind": "variable",
+				"name": "u",
+				"byref": false,
+				"curly": false
+			},
+			"body": {
+				"kind": "block",
+				"children": [
+					{
+						"kind": "assign",
+						"operator": "=",
+						"left": {
+							"kind": "variable",
+							"name": "q",
+							"byref": false,
+							"curly": false
+						},
+						"right": {
+							"kind": "boolean",
+							"value": true
+						}
+					}
+				]
+			},
+			"alternate": {
+				"kind": "block",
+				"children": [
+					{
+						"kind": "assign",
+						"operator": "=",
+						"left": {
+							"kind": "variable",
+							"name": "q",
+							"byref": false,
+							"curly": false
+						},
+						"right": {
+							"kind": "boolean",
+							"value": false
+						}
+					}
+				]
+			},
+			"shortForm": false
+		},
+		{
+			"kind": "call",
+			"what": {
+				"kind": "identifier",
+				"resolution": "uqn",
+				"name": "mysql_query"
+			},
+			"arguments": [
+				{
+					"kind": "variable",
+					"name": "a",
+					"byref": false,
+					"curly": false
+				}
+			]
 		}
 	],
 	"errors": []

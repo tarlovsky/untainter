@@ -6,14 +6,22 @@ $u3 = $_GET["u3"];
 $u4 = $_GET["u4"];
 if($u){
     $p = $u;
-}else if ($u1){
-    $a = $_GET['a'];
 }else if (True){
+    $a = $_GET["USER"];
+}else if ($u1){
     $b = $_GET['b'];
-}else if ($u3){
+}else if (True){
     $c = $_GET['c'];
-    mysql_query($b);
+    $a = mysql_escape_string($a);
 }else{
     $d = $_GET['d'];
 }
+
+if ($u){
+    $q = True;
+}else{
+    $q = False;
+}
+
+mysql_query($a);
 ?>

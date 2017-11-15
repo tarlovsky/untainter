@@ -95,3 +95,29 @@ Tainted variables: {u'a': [u'_GET["a"]', u'u', u'u1'], u'c': [u'_GET["c"]', u'u'
 Example: c is tainted by:
 'c': [u'_GET["c"]', 'u', 'u1', 'u3']
 ?>
+############# INPUT #############
+<?php
+$u = $_GET["u"];
+$u1 = $_GET["u1"];
+$u2 = $_GET["u2"];
+$u3 = $_GET["u3"];
+$u4 = $_GET["u4"];
+if($u){
+    $p = $u;
+}else if ($u1){
+    $a = $_GET['a'];
+}else if (True){
+    $b = $_GET['b'];
+}else if ($u3){
+    $c = $_GET['c'];
+    mysql_query($b);
+}else{
+    $d = $_GET['d'];
+}
+?>
+*-----------Line: 5---------*
+[*] @ Sensitive sink [mysql_query] is accepting a tainted value/s [b]!
+
+Tainted variables: {u'a': [u'_GET["a"]', u'u', u'u1'], u'c': [u'_GET["c"]', u'u', u'u1', u'u3'], u'b': [u'_GET["b"]', u'u', u'u1'], u'd': [u'_GET["d"]'], u'u4': [u'_GET["u4"]'], u'u1': [u'_GET["u1"]'], u'u3': [u'_GET["u3"]'], u'u2': [u'_GET["u2"]'], u'p': [u'_GET["u"]', u'u'], u'u': [u'_GET["u"]'], (u'mysql_query', u'_GET["b"]'): [u'u', u'u1', u'u3', u'u3']}
+
+u'c': [u'_GET["c"]', u'u', u'u1', u'u3']

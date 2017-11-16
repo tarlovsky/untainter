@@ -195,7 +195,7 @@ def taint_origin(var, result):
         for v in tainted[var]:
             taint_origin(v, result)
     
-
+#check if any kind of entry point from all patterns
 def is_entry_point(s):
     
     s = detuple(s)
@@ -347,8 +347,7 @@ def if_handle(child):
         __linenumber__+=1
         v = descend(bch)
         #print("TEST:" + str(test))
-        #print(v)
-        
+
         # get all if and else if tests until current block into if_chain_tainters
         if test is not None:
             for i in test:

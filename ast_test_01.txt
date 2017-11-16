@@ -44,7 +44,31 @@
 				},
 				"offset": {
 					"kind": "string",
-					"value": "user",
+					"value": "password",
+					"isDoubleQuote": true
+				}
+			}
+		},
+		{
+			"kind": "assign",
+			"operator": "=",
+			"left": {
+				"kind": "variable",
+				"name": "j3",
+				"byref": false,
+				"curly": false
+			},
+			"right": {
+				"kind": "offsetlookup",
+				"what": {
+					"kind": "variable",
+					"name": "_GET",
+					"byref": false,
+					"curly": false
+				},
+				"offset": {
+					"kind": "string",
+					"value": "new_password",
 					"isDoubleQuote": true
 				}
 			}
@@ -53,7 +77,7 @@
 			"kind": "while",
 			"test": {
 				"kind": "variable",
-				"name": "j1",
+				"name": "j3",
 				"byref": false,
 				"curly": false
 			},
@@ -65,7 +89,7 @@
 						"operator": "=",
 						"left": {
 							"kind": "variable",
-							"name": "j1",
+							"name": "j2",
 							"byref": false,
 							"curly": false
 						},
@@ -93,6 +117,36 @@
 				]
 			},
 			"shortForm": false
+		},
+		{
+			"kind": "assign",
+			"operator": "=",
+			"left": {
+				"kind": "variable",
+				"name": "j1",
+				"byref": false,
+				"curly": false
+			},
+			"right": {
+				"kind": "call",
+				"what": {
+					"kind": "identifier",
+					"resolution": "uqn",
+					"name": "strdup"
+				},
+				"arguments": [
+					{
+						"kind": "variable",
+						"name": "j1",
+						"byref": false,
+						"curly": false
+					},
+					{
+						"kind": "number",
+						"value": "1"
+					}
+				]
+			}
 		}
 	],
 	"errors": []

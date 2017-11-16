@@ -326,13 +326,14 @@ def while_handle(child):
         if test is not None:
             for i in test:
                 if v is not None:
-                    if i != v[0] and v[0] in tainted:
-                        #old
-                        #tainted[v[0]].extend([i])
-                        #new
-                        tainted[v[0]] = list(set().union(tainted[v[0]],[i]))
-                    elif not isinstance(v[0], tuple):
-                        tainted[v[0]] = [i]
+                    if i not in v[0]:
+                        if v[0] in tainted:
+                            #old
+                            #tainted[v[0]].extend([i])
+                            #new
+                            tainted[v[0]] = list(set().union(tainted[v[0]],[i]))
+                        elif not isinstance(v[0], tuple):
+                            tainted[v[0]] = [i]
                 else:
                     break;
 
@@ -361,13 +362,14 @@ def if_handle(child):
         
         for ifcht in if_chain_tainters:
             if v is not None:
-                if ifcht != v[0] and v[0] in tainted:
-                    #new
-                    tainted[v[0]] = list(set().union(tainted[v[0]],[ifcht]))
-                    #old
-                    #tainted[v[0]].extend([ifcht])
-                elif not isinstance(v[0], tuple):
-                    tainted[v[0]] = [ifcht]
+                if ifcht not in v[0]:
+                    if v[0] in tainted:
+                        #new
+                        tainted[v[0]] = list(set().union(tainted[v[0]],[ifcht]))
+                        #old
+                        #tainted[v[0]].extend([ifcht])
+                    elif not isinstance(v[0], tuple):
+                        tainted[v[0]] = [ifcht]
         
     
     if 'alternate' in child.keys() and child['alternate'] is not None:

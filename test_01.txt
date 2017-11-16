@@ -1,8 +1,9 @@
 <?php
 $j1 = $_GET["user"];
-$j2 = $_GET["user"];
-while($j1){
-    $j1 = strdup($j1,1);    
+$j2 = $_GET["password"];
+$j3 = $_GET["new_password"];
+while($j3){
+    $j2 = strdup($j1,1);    
 }
-
+$j1 = strdup($j1,1);    
 ?>

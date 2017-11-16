@@ -189,3 +189,17 @@ Possible [Cross site scripting] @ [Line:14] Sensitive sink [file_put_contents] i
 [c]: _GET["c"]
 [j1]: _GET["user"]
 -------------------------------------
+############# INPUT #############
+<?php
+$j1 = $_GET["user"];
+$j2 = $_GET["password"];
+while($j2){
+    $j2 = strdup($j1,1);    
+}
+?>
+########################
+Processing ast_test_01.txt
+------------Tainted values-----------
+[j1]: _GET["user"]
+[j2]: _GET["user"]
+-------------------------------------

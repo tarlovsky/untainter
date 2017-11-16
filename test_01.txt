@@ -1,0 +1,8 @@
+<?php
+$j1 = $_GET["user"];
+$j2 = $_GET["user"];
+while($j1){
+    $j1 = strdup($j1,1);    
+}
+
+?>

@@ -1,0 +1,99 @@
+{
+	"kind": "program",
+	"children": [
+		{
+			"kind": "assign",
+			"operator": "=",
+			"left": {
+				"kind": "variable",
+				"name": "j1",
+				"byref": false,
+				"curly": false
+			},
+			"right": {
+				"kind": "offsetlookup",
+				"what": {
+					"kind": "variable",
+					"name": "_GET",
+					"byref": false,
+					"curly": false
+				},
+				"offset": {
+					"kind": "string",
+					"value": "user",
+					"isDoubleQuote": true
+				}
+			}
+		},
+		{
+			"kind": "assign",
+			"operator": "=",
+			"left": {
+				"kind": "variable",
+				"name": "j2",
+				"byref": false,
+				"curly": false
+			},
+			"right": {
+				"kind": "offsetlookup",
+				"what": {
+					"kind": "variable",
+					"name": "_GET",
+					"byref": false,
+					"curly": false
+				},
+				"offset": {
+					"kind": "string",
+					"value": "user",
+					"isDoubleQuote": true
+				}
+			}
+		},
+		{
+			"kind": "while",
+			"test": {
+				"kind": "variable",
+				"name": "j1",
+				"byref": false,
+				"curly": false
+			},
+			"body": {
+				"kind": "block",
+				"children": [
+					{
+						"kind": "assign",
+						"operator": "=",
+						"left": {
+							"kind": "variable",
+							"name": "j1",
+							"byref": false,
+							"curly": false
+						},
+						"right": {
+							"kind": "call",
+							"what": {
+								"kind": "identifier",
+								"resolution": "uqn",
+								"name": "strdup"
+							},
+							"arguments": [
+								{
+									"kind": "variable",
+									"name": "j1",
+									"byref": false,
+									"curly": false
+								},
+								{
+									"kind": "number",
+									"value": "1"
+								}
+							]
+						}
+					}
+				]
+			},
+			"shortForm": false
+		}
+	],
+	"errors": []
+}

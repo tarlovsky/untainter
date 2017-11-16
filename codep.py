@@ -192,7 +192,8 @@ def taint_origin(var, result):
     
     if var in tainted:
         for v in tainted[var]:
-            taint_origin(v, result)
+            if v != var:
+                taint_origin(v, result)
     
 #check if any kind of entry point from all patterns
 def is_entry_point(s):
@@ -318,17 +319,18 @@ def while_handle(child):
     
     
     for bch in body_children:
-        
         __linenumber__+=1
         v = descend(bch)
-        print("v"+str(v))
         
         #all taint values inside test case taint every var in block
         if test is not None:
             for i in test:
                 if v is not None:
-                    if v[0] in tainted:
-                        tainted[v[0]].extend([i])
+                    if i != v[0] and v[0] in tainted:
+                        #old
+                        #tainted[v[0]].extend([i])
+                        #new
+                        tainted[v[0]] = list(set().union(tainted[v[0]],[i]))
                     elif not isinstance(v[0], tuple):
                         tainted[v[0]] = [i]
                 else:
@@ -353,18 +355,15 @@ def if_handle(child):
 
         # get all if and else if tests until current block into if_chain_tainters
         if test is not None:
-            
             for i in test:
-                print("III")
-                print(i)
-                if_chain_tainters = list(set().union(if_chain_tainters, [i]))
+                if i in tainted:
+                    if_chain_tainters = list(set().union(if_chain_tainters, [i]))
         
         for ifcht in if_chain_tainters:
             if v is not None:
-                if v[0] in tainted:
+                if ifcht != v[0] and v[0] in tainted:
                     #new
                     tainted[v[0]] = list(set().union(tainted[v[0]],[ifcht]))
-                    print(tainted)
                     #old
                     #tainted[v[0]].extend([ifcht])
                 elif not isinstance(v[0], tuple):
@@ -400,7 +399,7 @@ def encapsed_handle(child):
 def call_handle(child):
     global tainted, __linenumber__
     
-    print("TAINTED: %s" % str(tainted))
+    #print("TAINTED: %s" % str(tainted))
     
     original_entry = None
     
@@ -473,7 +472,7 @@ def call_handle(child):
                         
                         #could be direct function call within parameter placing
                         if isinstance(v, tuple):
-                            ret+= traverse(v, id)
+                            ret += traverse(v, id)
                             taint_update.append( (id, v) ) 
                             if ret >= 2:
                                 corrected += 1
@@ -578,8 +577,6 @@ def assign_handle(child):
         for v in lval:
             if v in tainted and rval is not None:
                 rval = set().union(tainted[v], rval)
-                print("RVAL")
-                print(rval)
     
     if rval is not None:   
         #take all right tainted values or entry points and add them to lval's list  
@@ -596,7 +593,6 @@ def assign_handle(child):
                 elif v in tainted:
                     tainted_by.extend(tainted[v])
                 
-        
         if len(tainted_by) > 0:
             tainted[lval[0]] = tainted_by
             return lval

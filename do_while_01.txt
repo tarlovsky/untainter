@@ -1,0 +1,10 @@
+<?php
+$i = $_GET["i"];
+$i1 = $_GET["i1"];
+$a = "1";
+$i2 = "string";
+while($i > 0){
+    $a = mysql_escape_string($a);
+    mysql_query(($a));
+}
+?>

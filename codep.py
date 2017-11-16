@@ -92,6 +92,7 @@ def init(names=None):
 #prints all tainted variables, usually at the end of the program
 def print_tainted():
     global tainted
+    
     print("------------Tainted values-----------")
     
     for k in tainted.keys():
@@ -307,7 +308,7 @@ def bin_handle(child):
     return ret
 
 def while_handle(child):
-    
+    global __linenumber__
     test = descend(child['test'])
     
     if test is not None:
@@ -315,21 +316,26 @@ def while_handle(child):
         #print("test %s" % str(test))
     
     body_children = child['body']['children']
-
+    
+    
     for bch in body_children:
+        __linenumber__+=1
+        
         v = descend(bch)
+        
         #all taint values inside test case taint every var in block
         if test is not None:
             for i in test:
                 if v[0] in tainted:
                     tainted[v[0]].extend([i])
-                else:
+                elif not isinstance(v[0], tuple):
                     tainted[v[0]] = [i]
 
     return None
 
 def if_handle(child):
     global if_chain_tainters
+    global __linenumber__
     test = descend(child['test'])
     
     if test is not None:
@@ -338,6 +344,7 @@ def if_handle(child):
     body_children = child['body']['children']
 
     for bch in body_children:
+        __linenumber__+=1
         v = descend(bch)
         #print("TEST:" + str(test))
         #print(v)
@@ -348,11 +355,10 @@ def if_handle(child):
                 #print(i)
                 if_chain_tainters.append(i)
         
-        
         for ifcht in if_chain_tainters:
             if v[0] in tainted:
                 tainted[v[0]].extend([ifcht])
-            else:
+            elif not isinstance(v[0], tuple):
                 tainted[v[0]] = [ifcht]
         
     
@@ -363,6 +369,7 @@ def if_handle(child):
             alternate_children = a['children'] 
             if alternate_children is not None:
                 for ach in alternate_children:
+                    __linenumber__+=1
                     v = descend(ach)
             del if_chain_tainters[:]
         elif a['kind'] == 'if':#nested if
@@ -387,8 +394,9 @@ def call_handle(child):
     #print("TAINTED: %s" % str(tainted))
     
     original_entry = None
-
-    args = child[ goto(child['kind'])[0] ]
+    
+    args = child[goto(child['kind'])[0]]
+    
     if not isinstance(args, list):
         args = [args]
 
@@ -612,6 +620,11 @@ def goto(x):
     #if its a call we need to get it's arguments
     return {
         'call': ['arguments'],
+        'echo': ['arguments'],
+        'include':['target'],
+        'exit': ['status'],
+        'print':['arguments'],
+
         'bin': ['left','right'],
         'assign': ['left','right'],
         'offsetlookup':['what', 'offset'], # we can ignore offset because just knowing its a _GET is enought to know that its a tainted value, 'offset'],
@@ -619,14 +632,12 @@ def goto(x):
         'encapsed':['value'],
         'if': ['test', 'body', 'alternate'],
         'block':['children'],
-        'while':['test', 'body'],
+        'while':['body'],
         'global':['name'],#name?
         'parenthesis':['inner'],
-        'include':['target'],
-        'exit': ['status'],
-        'print':['arguments'],
+        
         'what':['name']#_POST, varname, etc
-    }.get(x, 9)    # 9 is default if x not found
+    }.get(x, 0)    # 9 is default if x not found
 
 def main():
     init(sys.argv[1:])

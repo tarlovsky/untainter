@@ -1,0 +1,152 @@
+{
+	"kind": "program",
+	"children": [
+		{
+			"kind": "assign",
+			"operator": "=",
+			"left": {
+				"kind": "variable",
+				"name": "i",
+				"byref": false,
+				"curly": false
+			},
+			"right": {
+				"kind": "offsetlookup",
+				"what": {
+					"kind": "variable",
+					"name": "_GET",
+					"byref": false,
+					"curly": false
+				},
+				"offset": {
+					"kind": "string",
+					"value": "i",
+					"isDoubleQuote": true
+				}
+			}
+		},
+		{
+			"kind": "assign",
+			"operator": "=",
+			"left": {
+				"kind": "variable",
+				"name": "i1",
+				"byref": false,
+				"curly": false
+			},
+			"right": {
+				"kind": "offsetlookup",
+				"what": {
+					"kind": "variable",
+					"name": "_GET",
+					"byref": false,
+					"curly": false
+				},
+				"offset": {
+					"kind": "string",
+					"value": "i1",
+					"isDoubleQuote": true
+				}
+			}
+		},
+		{
+			"kind": "assign",
+			"operator": "=",
+			"left": {
+				"kind": "variable",
+				"name": "a",
+				"byref": false,
+				"curly": false
+			},
+			"right": {
+				"kind": "string",
+				"value": "1",
+				"isDoubleQuote": true
+			}
+		},
+		{
+			"kind": "assign",
+			"operator": "=",
+			"left": {
+				"kind": "variable",
+				"name": "i2",
+				"byref": false,
+				"curly": false
+			},
+			"right": {
+				"kind": "string",
+				"value": "string",
+				"isDoubleQuote": true
+			}
+		},
+		{
+			"kind": "while",
+			"test": {
+				"kind": "bin",
+				"type": ">",
+				"left": {
+					"kind": "variable",
+					"name": "i",
+					"byref": false,
+					"curly": false
+				},
+				"right": {
+					"kind": "number",
+					"value": "0"
+				}
+			},
+			"body": {
+				"kind": "block",
+				"children": [
+					{
+						"kind": "assign",
+						"operator": "=",
+						"left": {
+							"kind": "variable",
+							"name": "a",
+							"byref": false,
+							"curly": false
+						},
+						"right": {
+							"kind": "call",
+							"what": {
+								"kind": "identifier",
+								"resolution": "uqn",
+								"name": "mysql_escape_string"
+							},
+							"arguments": [
+								{
+									"kind": "variable",
+									"name": "a",
+									"byref": false,
+									"curly": false
+								}
+							]
+						}
+					},
+					{
+						"kind": "call",
+						"what": {
+							"kind": "identifier",
+							"resolution": "uqn",
+							"name": "mysql_query"
+						},
+						"arguments": [
+							{
+								"kind": "parenthesis",
+								"inner": {
+									"kind": "variable",
+									"name": "a",
+									"byref": false,
+									"curly": false
+								}
+							}
+						]
+					}
+				]
+			},
+			"shortForm": false
+		}
+	],
+	"errors": []
+}

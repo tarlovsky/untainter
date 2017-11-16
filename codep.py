@@ -166,7 +166,6 @@ def descend(child):
                     #dives depper in cases line parenthesis->inner
                     return descend(child[route])
             
-            
     return None
 
 def detuple(tup):
@@ -319,17 +318,21 @@ def while_handle(child):
     
     
     for bch in body_children:
-        __linenumber__+=1
         
+        __linenumber__+=1
         v = descend(bch)
+        print("v"+str(v))
         
         #all taint values inside test case taint every var in block
         if test is not None:
             for i in test:
-                if v[0] in tainted:
-                    tainted[v[0]].extend([i])
-                elif not isinstance(v[0], tuple):
-                    tainted[v[0]] = [i]
+                if v is not None:
+                    if v[0] in tainted:
+                        tainted[v[0]].extend([i])
+                    elif not isinstance(v[0], tuple):
+                        tainted[v[0]] = [i]
+                else:
+                    break;
 
     return None
 
@@ -350,15 +353,22 @@ def if_handle(child):
 
         # get all if and else if tests until current block into if_chain_tainters
         if test is not None:
+            
             for i in test:
-                #print(i)
-                if_chain_tainters.append(i)
+                print("III")
+                print(i)
+                if_chain_tainters = list(set().union(if_chain_tainters, [i]))
         
         for ifcht in if_chain_tainters:
-            if v[0] in tainted:
-                tainted[v[0]].extend([ifcht])
-            elif not isinstance(v[0], tuple):
-                tainted[v[0]] = [ifcht]
+            if v is not None:
+                if v[0] in tainted:
+                    #new
+                    tainted[v[0]] = list(set().union(tainted[v[0]],[ifcht]))
+                    print(tainted)
+                    #old
+                    #tainted[v[0]].extend([ifcht])
+                elif not isinstance(v[0], tuple):
+                    tainted[v[0]] = [ifcht]
         
     
     if 'alternate' in child.keys() and child['alternate'] is not None:
@@ -389,8 +399,8 @@ def encapsed_handle(child):
 
 def call_handle(child):
     global tainted, __linenumber__
-
-    #print("TAINTED: %s" % str(tainted))
+    
+    print("TAINTED: %s" % str(tainted))
     
     original_entry = None
     
@@ -406,8 +416,9 @@ def call_handle(child):
         id = child['kind']
     
     argv = []
-
+    
     for arg in args:
+        
         #print("%s ARGS inside : %s\n" % (id ,str(arg)))
         temp = descend(arg)
         
@@ -453,7 +464,7 @@ def call_handle(child):
                 taint_origin(v, original_entries)
             
                 if detuple(v) in tainted or is_entry_point(detuple(v)):    
-
+                    
                     #is this a sink that is vulnerable to it's arg's original taint value? (i.e.: _GET, ..etc)        
                     if original_entries and is_sink(original_entries, id):
                         
@@ -511,7 +522,6 @@ def call_handle(child):
         if len(taint_update) > 0:
             return taint_update
             
-    
     return argv
 
 # return 1 on vulnerable.
@@ -568,6 +578,8 @@ def assign_handle(child):
         for v in lval:
             if v in tainted and rval is not None:
                 rval = set().union(tainted[v], rval)
+                print("RVAL")
+                print(rval)
     
     if rval is not None:   
         #take all right tainted values or entry points and add them to lval's list  

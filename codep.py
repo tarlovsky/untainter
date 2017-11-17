@@ -49,6 +49,7 @@ def get_vulnerability_name(sink_id):
     return None
     
 def init(names=None):
+    """program setup"""
     global patterns, PATTERNS_FNAME, tainted, __linenumber__
 
     #load vuln patterns from file into memory
@@ -70,6 +71,7 @@ def init(names=None):
                     tmp[2].split(','),#untainting functions
                     tmp[3].split(','))#sensitive sinks
             )
+
     #check code snippets one by one
     for fname in names:
 
@@ -92,7 +94,7 @@ def init(names=None):
 #prints all tainted variables, usually at the end of the program
 def print_tainted():
     global tainted
-    
+    print tainted
     print("------------Tainted values-----------")
     
     for k in tainted.keys():
@@ -335,6 +337,7 @@ def while_handle(child):
                         elif not isinstance(v[0], tuple):
                             tainted[v[0]] = [i]
                 else:
+                    #continue;
                     break;
 
     return None
@@ -405,7 +408,9 @@ def if_handle(child):
     
     return None
 
+
 def encapsed_handle(child):
+    """encapsed : 'select * from $my_var'"""
     ret = []
 
     for i in child['value']:
@@ -415,43 +420,46 @@ def encapsed_handle(child):
     
     return ret
 
+
 def call_handle(child):
+    """handles function calls"""
     global tainted, __linenumber__
-    
+    #follow taint
+    original_entry = None
     #print("TAINTED: %s" % str(tainted))
     
-    original_entry = None
-    
+    #goto guides the parser down the rabbit hole
     args = child[goto(child['kind'])[0]]
-    
     if not isinstance(args, list):
         args = [args]
 
     if child['kind'] == 'call':
+        #normal function calls
         id = descend(child['what'])
     else:
-        #echo, printf
+        #kind: 'echo'
+        #kind: 'printf'
+        #kind: 'include'
         id = child['kind']
     
     argv = []
     
+    #parse function argumetns and descend on them
     for arg in args:
-        
-        #print("%s ARGS inside : %s\n" % (id ,str(arg)))
         temp = descend(arg)
-        
+        #is instance checks if is a function call
         if isinstance(temp, list):
             argv.extend(temp)
         else:
             argv.append(temp)
         
+        #check if argument is entry point
         if temp and len(temp) == 0 and is_entry_point(temp):
             tainted[temp] = []
     
     #print("%s Descended ARGS %s " % (id, str(argv)))
     
     if len(argv) > 0 and argv:
-        
         # gets entry point for any variable
         # returns entry point if argv[0] is entry point
         
@@ -515,8 +523,6 @@ def call_handle(child):
 
                             if ret > 0 and ret >= 2 * len(tainted[v]):
                                 corrected = corrected + 1
-                                #print('[*] @ Sensitive sink [%s] has beed corrected!' % (id))
-                                #ret = 0
                             else:
                                 print('Possible [%s] @ [Line:%d] Sensitive sink [%s] is accepting a tainted value/s [%s]!' % (get_vulnerability_name(id), __linenumber__ + 1, id, str(detuple(v))))
                             ret = 0
@@ -527,7 +533,6 @@ def call_handle(child):
                         
                     #does function untaint any of the original entries?
                     elif is_untaint(original_entries, id):
-
                         if isinstance(v, tuple) or is_entry_point(v):
                             taint_update.append( (id, v) )
                         else:
@@ -542,10 +547,10 @@ def call_handle(child):
             
     return argv
 
-# return 1 on vulnerable.
-# traverse starting on a sensitive sink upword.
 def traverse(key, sink_id):
-    """returns 1 if not what we want, aka we reach any end and no fix"""
+    """returns 2 when correcion has been applied the the correct sensitive sink"""
+    """returns 1 when there is a relation between: (sink and entry point), or (sensitive sink and untaint function)"""
+    """returns 0 when there is not correlation between anything."""
     global tainted
     
     if isinstance(key, tuple):
@@ -561,10 +566,8 @@ def traverse(key, sink_id):
         
         if is_entry_point(key):  
             return 1
-            
             #if is_sink(key, sink_id):
                 #return 1
-            
         else:
             for v in tainted[key]:
                 return traverse(v, sink_id)
@@ -574,11 +577,11 @@ def traverse(key, sink_id):
 def assign_handle(child):
     global tainted
     #we know we got an assign kind object
-    rval = descend(child['right'])#this descent guarantees that it will populated tainted before lvalue check
+    rval = descend(child['right'])
+    #this descent guarantees that it will populated tainted before lvalue check
     lval = descend(child['left'])
     operator = child['operator']
     
-
     if rval is not None:
         rval = rval if isinstance(rval, list) else [rval]
     if lval is not None:
@@ -663,7 +666,7 @@ def goto(x):
         'parenthesis':['inner'],
         
         'what':['name']#_POST, varname, etc
-    }.get(x, 0)    # 9 is default if x not found
+    }.get(x, 0)    # 0 is default if x not found
 
 def main():
     init(sys.argv[1:])

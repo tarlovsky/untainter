@@ -50,6 +50,30 @@
 			}
 		},
 		{
+			"kind": "assign",
+			"operator": "=",
+			"left": {
+				"kind": "variable",
+				"name": "u2",
+				"byref": false,
+				"curly": false
+			},
+			"right": {
+				"kind": "offsetlookup",
+				"what": {
+					"kind": "variable",
+					"name": "_GET",
+					"byref": false,
+					"curly": false
+				},
+				"offset": {
+					"kind": "string",
+					"value": "u2",
+					"isDoubleQuote": true
+				}
+			}
+		},
+		{
 			"kind": "if",
 			"test": {
 				"kind": "variable",
@@ -74,6 +98,37 @@
 							"value": "",
 							"isDoubleQuote": true
 						}
+					},
+					{
+						"kind": "if",
+						"test": {
+							"kind": "variable",
+							"name": "u1",
+							"byref": false,
+							"curly": false
+						},
+						"body": {
+							"kind": "block",
+							"children": [
+								{
+									"kind": "assign",
+									"operator": "=",
+									"left": {
+										"kind": "variable",
+										"name": "c",
+										"byref": false,
+										"curly": false
+									},
+									"right": {
+										"kind": "string",
+										"value": "",
+										"isDoubleQuote": true
+									}
+								}
+							]
+						},
+						"alternate": null,
+						"shortForm": false
 					}
 				]
 			},
@@ -87,28 +142,41 @@
 				},
 				"body": {
 					"kind": "block",
-					"children": []
-				},
-				"alternate": {
-					"kind": "block",
 					"children": [
 						{
-							"kind": "assign",
-							"operator": "=",
-							"left": {
+							"kind": "if",
+							"test": {
 								"kind": "variable",
-								"name": "q",
+								"name": "u2",
 								"byref": false,
 								"curly": false
 							},
-							"right": {
-								"kind": "string",
-								"value": "",
-								"isDoubleQuote": true
-							}
+							"body": {
+								"kind": "block",
+								"children": [
+									{
+										"kind": "assign",
+										"operator": "=",
+										"left": {
+											"kind": "variable",
+											"name": "b",
+											"byref": false,
+											"curly": false
+										},
+										"right": {
+											"kind": "string",
+											"value": "",
+											"isDoubleQuote": true
+										}
+									}
+								]
+							},
+							"alternate": null,
+							"shortForm": false
 						}
 					]
 				},
+				"alternate": null,
 				"shortForm": false
 			},
 			"shortForm": false
@@ -123,7 +191,7 @@
 			"arguments": [
 				{
 					"kind": "variable",
-					"name": "q",
+					"name": "b",
 					"byref": false,
 					"curly": false
 				}

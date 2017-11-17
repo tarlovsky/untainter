@@ -1,7 +1,8 @@
 <?php
 $u = $_GET["username"];
 $p = $_GET["password"];
+
 $b = mysql_escape_string($u);
 $s = mysql_real_escape_string($u).$b;
-$tmp = mysql_query($s);
+$tmp = mysql_query(((($s))));
 ?>

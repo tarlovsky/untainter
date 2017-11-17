@@ -129,10 +129,19 @@
 				},
 				"arguments": [
 					{
-						"kind": "variable",
-						"name": "s",
-						"byref": false,
-						"curly": false
+						"kind": "parenthesis",
+						"inner": {
+							"kind": "parenthesis",
+							"inner": {
+								"kind": "parenthesis",
+								"inner": {
+									"kind": "variable",
+									"name": "s",
+									"byref": false,
+									"curly": false
+								}
+							}
+						}
 					}
 				]
 			}

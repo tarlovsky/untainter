@@ -1,15 +1,18 @@
 <?php
 $u = $_GET["u"];
 $u1 = $_GET["u1"];
-
+$u2 = $_GET["u2"];
 if ($u){
     $f = "";
+    if($u1){
+        $c = "";
+    }
 }else if($u1){
-    
-}else{
-    $q = "";
+    if($u2){
+        $b = "";
+    }
 }
 
 
-mysql_query($q);
+mysql_query($b);
 ?>

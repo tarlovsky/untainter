@@ -381,6 +381,23 @@ def if_handle(child):
                 for ach in alternate_children:
                     __linenumber__+=1
                     v = descend(ach)
+                    # get all if and else if tests until current block into if_chain_tainters
+                    if test is not None:
+                        for i in test:
+                            if i in tainted:
+                                if_chain_tainters = list(set().union(if_chain_tainters, [i]))
+                                
+                    for ifcht in if_chain_tainters:
+                        if v is not None:
+                            if ifcht not in v[0]:
+                                if v[0] in tainted:
+                                    #new
+                                    tainted[v[0]] = list(set().union(tainted[v[0]],[ifcht]))
+                                    #old
+                                    #tainted[v[0]].extend([ifcht])
+                                elif not isinstance(v[0], tuple):
+                                    tainted[v[0]] = [ifcht]
+                                    
             del if_chain_tainters[:]
         elif a['kind'] == 'if':#nested if
             descend(a)

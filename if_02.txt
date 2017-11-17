@@ -1,0 +1,15 @@
+<?php
+$u = $_GET["u"];
+$u1 = $_GET["u1"];
+
+if ($u){
+    $f = "";
+}else if($u1){
+    
+}else{
+    $q = "";
+}
+
+
+mysql_query($q);
+?>

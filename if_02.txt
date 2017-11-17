@@ -13,6 +13,5 @@ if ($u){
     }
 }
 
-
 mysql_query($b);
 ?>

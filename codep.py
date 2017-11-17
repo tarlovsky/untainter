@@ -1,14 +1,14 @@
 #!/usr/bin/python
 # Usage:
-# python codep.py list of filenames separated by spaces
+# bash#: python codep.py [list of filenames separated by spaces]
 # files will be parsed independently 
 # Made as group project for SSof in IST in 2017 Oct-Nov
-# 
+# Pedro, Alex and Joana
 
 import sys
 import json
 
-# ported from first version 
+# ported from first version NOT USED
 PATTERNS_FNAME="lookup_list"
 PHP_VARS_REG='(\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)'
 PHP_VAR_CHARS='[a-z][A-Z][0-9]'
@@ -16,18 +16,21 @@ PHP_CONCAT_OPS_1="\.|\+|\*|\/"
 PHP_CONCAT_OPS=('.', '+', ' ', ',')
 OPERATORS='-+*/|~^&'
 EQUALS_CHAR='='
+# end ported from first version NOT USED
 
 #new to each file
 __linenumber__ = 0
 tainted={}
 current_ast={}
 
+#this is handy 
 sensitive_sink_names=set()
 untaint_func_names=set()
 entry_point_names=set()
 # patterns retrieved from [http://awap.sourceforge.net/support.html]
 patterns=[]
 
+#used where there are nested if conditions that have upper level tainting variables.
 if_chain_tainters=[]
 
 class Pattern:
@@ -38,7 +41,7 @@ class Pattern:
         self.untaint_funcs=untaint_funcs[:]
         self.sinks=sinks[:]
 
-#gets vulnerabiity name from a known pattern list
+#gets vulnerabiity name a pattern list
 def get_vulnerability_name(sink_id):
     global patterns
     

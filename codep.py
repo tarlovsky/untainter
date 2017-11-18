@@ -313,7 +313,7 @@ def bin_handle(child):
     return ret
 
 def while_handle(child):
-    global __linenumber__
+    global __linenumber__, if_chain_tainters
     test = descend(child['test'])
     
     if test is not None:
@@ -325,14 +325,15 @@ def while_handle(child):
     
     for bch in body_children:
         __linenumber__+=1
-        v = descend(bch)
-        
-        #all taint values inside test case taint every var in block
         if test is not None:
             for i in test:
                 if i in tainted:
                     if_chain_tainters = list(set().union(if_chain_tainters, [i]))
         
+        v = descend(bch)
+        
+        # get all if and else if tests until current block into if_chain_tainters
+    
         for ifcht in if_chain_tainters:
             if v is not None:
                 if ifcht not in v[0]:
@@ -343,7 +344,7 @@ def while_handle(child):
                         #tainted[v[0]].extend([ifcht])
                     elif not isinstance(v[0], tuple):
                         tainted[v[0]] = [ifcht]
-
+        del if_chain_tainters[:]
     return None
 
 def if_handle(child):

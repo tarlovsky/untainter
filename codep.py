@@ -22,6 +22,7 @@ EQUALS_CHAR='='
 __linenumber__ = 0
 tainted={}
 current_ast={}
+fallback_taint_mode=0
 
 #this is handy 
 sensitive_sink_names=set()
@@ -349,14 +350,15 @@ def while_handle(child):
     return None
 
 def if_handle(child):
-    global if_chain_tainters
-    global __linenumber__
+    global __linenumber__, if_chain_tainters, fallback_taint_mode
     test = descend(child['test'])
     
     if test is not None:
         test = test if isinstance(test, list) else [test]
     
     body_children = child['body']['children']
+    
+    fallback_taint_mode=1
 
     for bch in body_children:
         __linenumber__+=1
@@ -409,11 +411,12 @@ def if_handle(child):
                                         #tainted[v[0]].extend([ifcht])
                                     elif not isinstance(v[0], tuple):
                                         tainted[v[0]] = [ifcht]
-                                        
+                fallback_taint_mode=0                        
                 del if_chain_tainters[:]
             elif a['kind'] == 'if':#nested if
                 descend(a)
         else:
+            fallback_taint_mode=0
             del if_chain_tainters[:]
     
     return None
@@ -429,6 +432,81 @@ def encapsed_handle(child):
             ret.append(val)
     
     return ret
+
+
+def assign_handle(child):
+    global tainted, fallback_taint_mode
+    #we know we got an assign kind object
+    rval = descend(child['right'])
+    #this descent guarantees that it will populated tainted before lvalue check
+    lval = descend(child['left'])
+    operator = child['operator']
+    
+    if rval is not None:
+        rval = rval if isinstance(rval, list) else [rval]
+    if lval is not None:
+        lval = lval if isinstance(lval, list) else [lval]
+    
+    #   could be .= *= += -= &=
+    #   if is assign with an operator other than an '=' sign.
+    #   if operator != '=':
+    #
+    #   collect q into q
+    #   $q = $_GET["user"];
+    #   $q = $q.$u; 
+    
+    if operator != "=":
+        for v in lval:
+            if v in tainted and rval is not None:
+                rval = set().union(tainted[v], rval)
+    
+    if rval is not None:   
+        #take all right tainted values or entry points and add them to lval's list  
+        tainted_by = []
+        
+        for v in rval:
+            #only propagate tainted values and tuples
+            if isinstance(v, tuple):
+                tainted_by.append(v)
+            #removed elif (v and v not in lval):
+            elif (v):
+                if is_entry_point(v):
+                    tainted_by.append(v)
+                elif v in tainted:
+                    tainted_by.extend(tainted[v])
+                
+        if len(tainted_by) > 0:
+            tainted[lval[0]] = tainted_by
+            return lval
+        #added
+        else:
+            print(fallback_taint_mode)
+            if(fallback_taint_mode) and lval[0] in tainted:
+                return lval
+
+        #  we got here means no tainted values being assigned to it.
+        #  remove it from tanted list because
+        #  an assign to no tainted values rewrites it.
+        if lval[0] in tainted:
+            del tainted[lval[0]]     
+        
+    return lval
+
+#returns if entry point like: $_GET['name'] doesnt return if $a[1] normal lookup
+def offsetlookup_handle(child):
+    w = child['what']
+    o = child['offset']
+    if w and o:
+        p1 = w['name']
+        if '$'+p1 in entry_point_names:
+            p2 = o['value']
+            ok = o['kind']
+            if ok == 'string':
+                return p1+'["'+p2+'"]'
+            else:
+                return p1+'['+p2+']'
+    return 0
+
 
 
 def call_handle(child):
@@ -583,75 +661,6 @@ def traverse(key, sink_id):
                 return traverse(v, sink_id)
         
     return 0
-
-def assign_handle(child):
-    global tainted
-    #we know we got an assign kind object
-    rval = descend(child['right'])
-    #this descent guarantees that it will populated tainted before lvalue check
-    lval = descend(child['left'])
-    operator = child['operator']
-    
-    if rval is not None:
-        rval = rval if isinstance(rval, list) else [rval]
-    if lval is not None:
-        lval = lval if isinstance(lval, list) else [lval]
-    
-    #   could be .= *= += -= &=
-    #   if is assign with an operator other than an '=' sign.
-    #   if operator != '=':
-    #
-    #   collect q into q
-    #   $q = $_GET["user"];
-    #   $q = $q.$u; 
-    
-    if operator != "=":
-        for v in lval:
-            if v in tainted and rval is not None:
-                rval = set().union(tainted[v], rval)
-    
-    if rval is not None:   
-        #take all right tainted values or entry points and add them to lval's list  
-        tainted_by = []
-        
-        for v in rval:
-            #only propagate tainted values and tuples
-            if isinstance(v, tuple):
-                tainted_by.append(v)
-            #removed elif (v and v not in lval):
-            elif (v):
-                if is_entry_point(v):
-                    tainted_by.append(v)
-                elif v in tainted:
-                    tainted_by.extend(tainted[v])
-                
-        if len(tainted_by) > 0:
-            tainted[lval[0]] = tainted_by
-            return lval
-        
-        #  we got here means no tainted values being assigned to it.
-        #  remove it from tanted list because
-        #  an assign to no tainted values rewrites it.
-        if lval[0] in tainted:
-            del tainted[lval[0]]     
-        
-    return lval
-
-#returns if entry point like: $_GET['name'] doesnt return if $a[1] normal lookup
-def offsetlookup_handle(child):
-    w = child['what']
-    o = child['offset']
-    if w and o:
-        p1 = w['name']
-        if '$'+p1 in entry_point_names:
-            p2 = o['value']
-            ok = o['kind']
-            if ok == 'string':
-                return p1+'["'+p2+'"]'
-            else:
-                return p1+'['+p2+']'
-    return 0
-
 
 def goto(x):
     #what are we looking for?

@@ -322,7 +322,7 @@ def while_handle(child):
         #print("test %s" % str(test))
     
     body_children = child['body']['children']
-    
+
     for bch in body_children:
         __linenumber__+=1
         
@@ -478,11 +478,17 @@ def assign_handle(child):
         if len(tainted_by) > 0:
             tainted[lval[0]] = tainted_by
             return lval
-        #added
+        #begin added
         else:
             print(fallback_taint_mode)
+            # lval tainted in one branch and being overridden in another with untainted value
+            # out program over estimates because it is dangerous to have tainted values in some branches
+            # and not in others
+            # basically normal code would mark the variable as untainted.
+            # this code means: "once you go tainted in a branch you never go back".
             if(fallback_taint_mode) and lval[0] in tainted:
                 return lval
+        #end added
 
         #  we got here means no tainted values being assigned to it.
         #  remove it from tanted list because

@@ -2,16 +2,15 @@
 $u = $_GET["u"];
 $u1 = $_GET["u1"];
 $u2 = $_GET["u2"];
-if ($u){
-    $f = "";
-    if($u1){
-        $c = "";
-    }
-}else if($u1){
-    if($u2){
+$u3 = $_GET["u3"];
+if($u1){
+    $a = "";
+    if($u3){
         $b = "";
     }
+}else if($u2){
+    $e = "";
+}else{
+    $f = "";
 }
-
-mysql_query($b);
 ?>

@@ -24,7 +24,12 @@
   
 
   process.argv.forEach(function (val, index, array) {
-    if(index > 1){    
+    if(index > 1){  
+      var content = fs.readFileSync( val, "utf-8" )
+      console.log("Opened and parsed file: "+val);
+      var res = parser.parseCode(content)
+      fs.writeFileSync('ast_'+val, JSON.stringify(res, null, '\t'))
+
       fs.watch(val, { encoding: 'buffer' }, (eventType, filename) => {
         if (filename) {
           var content = fs.readFileSync( val, "utf-8" )

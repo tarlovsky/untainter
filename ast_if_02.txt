@@ -74,10 +74,34 @@
 			}
 		},
 		{
+			"kind": "assign",
+			"operator": "=",
+			"left": {
+				"kind": "variable",
+				"name": "u3",
+				"byref": false,
+				"curly": false
+			},
+			"right": {
+				"kind": "offsetlookup",
+				"what": {
+					"kind": "variable",
+					"name": "_GET",
+					"byref": false,
+					"curly": false
+				},
+				"offset": {
+					"kind": "string",
+					"value": "u3",
+					"isDoubleQuote": true
+				}
+			}
+		},
+		{
 			"kind": "if",
 			"test": {
 				"kind": "variable",
-				"name": "u",
+				"name": "u1",
 				"byref": false,
 				"curly": false
 			},
@@ -89,7 +113,7 @@
 						"operator": "=",
 						"left": {
 							"kind": "variable",
-							"name": "f",
+							"name": "a",
 							"byref": false,
 							"curly": false
 						},
@@ -103,7 +127,7 @@
 						"kind": "if",
 						"test": {
 							"kind": "variable",
-							"name": "u1",
+							"name": "u3",
 							"byref": false,
 							"curly": false
 						},
@@ -115,7 +139,7 @@
 									"operator": "=",
 									"left": {
 										"kind": "variable",
-										"name": "c",
+										"name": "b",
 										"byref": false,
 										"curly": false
 									},
@@ -136,7 +160,7 @@
 				"kind": "if",
 				"test": {
 					"kind": "variable",
-					"name": "u1",
+					"name": "u2",
 					"byref": false,
 					"curly": false
 				},
@@ -144,58 +168,45 @@
 					"kind": "block",
 					"children": [
 						{
-							"kind": "if",
-							"test": {
+							"kind": "assign",
+							"operator": "=",
+							"left": {
 								"kind": "variable",
-								"name": "u2",
+								"name": "e",
 								"byref": false,
 								"curly": false
 							},
-							"body": {
-								"kind": "block",
-								"children": [
-									{
-										"kind": "assign",
-										"operator": "=",
-										"left": {
-											"kind": "variable",
-											"name": "b",
-											"byref": false,
-											"curly": false
-										},
-										"right": {
-											"kind": "string",
-											"value": "",
-											"isDoubleQuote": true
-										}
-									}
-								]
-							},
-							"alternate": null,
-							"shortForm": false
+							"right": {
+								"kind": "string",
+								"value": "",
+								"isDoubleQuote": true
+							}
 						}
 					]
 				},
-				"alternate": null,
+				"alternate": {
+					"kind": "block",
+					"children": [
+						{
+							"kind": "assign",
+							"operator": "=",
+							"left": {
+								"kind": "variable",
+								"name": "f",
+								"byref": false,
+								"curly": false
+							},
+							"right": {
+								"kind": "string",
+								"value": "",
+								"isDoubleQuote": true
+							}
+						}
+					]
+				},
 				"shortForm": false
 			},
 			"shortForm": false
-		},
-		{
-			"kind": "call",
-			"what": {
-				"kind": "identifier",
-				"resolution": "uqn",
-				"name": "mysql_query"
-			},
-			"arguments": [
-				{
-					"kind": "variable",
-					"name": "b",
-					"byref": false,
-					"curly": false
-				}
-			]
 		}
 	],
 	"errors": []

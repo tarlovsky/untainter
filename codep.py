@@ -41,7 +41,7 @@ class Pattern:
         self.untaint_funcs=untaint_funcs[:]
         self.sinks=sinks[:]
 
-#gets vulnerabiity name a pattern list
+#gets vulnerabiity name pattern list
 def get_vulnerability_name(sink_id):
     global patterns
     
@@ -330,18 +330,19 @@ def while_handle(child):
         #all taint values inside test case taint every var in block
         if test is not None:
             for i in test:
-                if v is not None:
-                    if i not in v[0]:
-                        if v[0] in tainted:
-                            #old
-                            #tainted[v[0]].extend([i])
-                            #new
-                            tainted[v[0]] = list(set().union(tainted[v[0]],[i]))
-                        elif not isinstance(v[0], tuple):
-                            tainted[v[0]] = [i]
-                else:
-                    #continue;
-                    break;
+                if i in tainted:
+                    if_chain_tainters = list(set().union(if_chain_tainters, [i]))
+        
+        for ifcht in if_chain_tainters:
+            if v is not None:
+                if ifcht not in v[0]:
+                    if v[0] in tainted:
+                        #new
+                        tainted[v[0]] = list(set().union(tainted[v[0]],[ifcht]))
+                        #old
+                        #tainted[v[0]].extend([ifcht])
+                    elif not isinstance(v[0], tuple):
+                        tainted[v[0]] = [ifcht]
 
     return None
 
@@ -365,7 +366,7 @@ def if_handle(child):
             for i in test:
                 if i in tainted:
                     if_chain_tainters = list(set().union(if_chain_tainters, [i]))
-        
+
         for ifcht in if_chain_tainters:
             if v is not None:
                 if ifcht not in v[0]:
@@ -378,36 +379,38 @@ def if_handle(child):
                         tainted[v[0]] = [ifcht]
         
     
-    if 'alternate' in child.keys() and child['alternate'] is not None:
-        a = child['alternate']
-        
-        if a['kind'] == 'block':#if block content has children(lines)
-            alternate_children = a['children'] 
-            if alternate_children is not None:
-                for ach in alternate_children:
-                    __linenumber__+=1
-                    v = descend(ach)
-                    # get all if and else if tests until current block into if_chain_tainters
-                    if test is not None:
-                        for i in test:
-                            if i in tainted:
-                                if_chain_tainters = list(set().union(if_chain_tainters, [i]))
-                                
-                    for ifcht in if_chain_tainters:
-                        if v is not None:
-                            if ifcht not in v[0]:
-                                if v[0] in tainted:
-                                    #new
-                                    tainted[v[0]] = list(set().union(tainted[v[0]],[ifcht]))
-                                    #old
-                                    #tainted[v[0]].extend([ifcht])
-                                elif not isinstance(v[0], tuple):
-                                    tainted[v[0]] = [ifcht]
+    if 'alternate' in child.keys():
+        if child['alternate'] is not None:
+            a = child['alternate']
+            
+            if a['kind'] == 'block':#if block content has children(lines)
+                alternate_children = a['children'] 
+                if alternate_children is not None:
+                    for ach in alternate_children:
+                        __linenumber__+=1
+                        v = descend(ach)
+                        # get all if and else if tests until current block into if_chain_tainters
+                        if test is not None:
+                            for i in test:
+                                if i in tainted:
+                                    if_chain_tainters = list(set().union(if_chain_tainters, [i]))
                                     
+                        for ifcht in if_chain_tainters:
+                            if v is not None:
+                                if ifcht not in v[0]:
+                                    if v[0] in tainted:
+                                        #new
+                                        tainted[v[0]] = list(set().union(tainted[v[0]],[ifcht]))
+                                        #old
+                                        #tainted[v[0]].extend([ifcht])
+                                    elif not isinstance(v[0], tuple):
+                                        tainted[v[0]] = [ifcht]
+                                        
+                del if_chain_tainters[:]
+            elif a['kind'] == 'if':#nested if
+                descend(a)
+        else:
             del if_chain_tainters[:]
-        elif a['kind'] == 'if':#nested if
-            descend(a)
-         
     
     return None
 

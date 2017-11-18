@@ -6,7 +6,7 @@
 			"operator": "=",
 			"left": {
 				"kind": "variable",
-				"name": "u",
+				"name": "nis",
 				"byref": false,
 				"curly": false
 			},
@@ -14,72 +14,33 @@
 				"kind": "offsetlookup",
 				"what": {
 					"kind": "variable",
-					"name": "_GET",
+					"name": "_POST",
 					"byref": false,
 					"curly": false
 				},
 				"offset": {
 					"kind": "string",
-					"value": "u",
-					"isDoubleQuote": true
+					"value": "nis",
+					"isDoubleQuote": false
 				}
 			}
 		},
 		{
-			"kind": "assign",
-			"operator": "=",
-			"left": {
-				"kind": "variable",
-				"name": "u1",
-				"byref": false,
-				"curly": false
-			},
-			"right": {
-				"kind": "offsetlookup",
-				"what": {
-					"kind": "variable",
-					"name": "_GET",
-					"byref": false,
-					"curly": false
-				},
-				"offset": {
-					"kind": "string",
-					"value": "u1",
-					"isDoubleQuote": true
-				}
-			}
-		},
-		{
-			"kind": "assign",
-			"operator": "=",
-			"left": {
-				"kind": "variable",
-				"name": "u2",
-				"byref": false,
-				"curly": false
-			},
-			"right": {
-				"kind": "offsetlookup",
-				"what": {
-					"kind": "variable",
-					"name": "_GET",
-					"byref": false,
-					"curly": false
-				},
-				"offset": {
-					"kind": "string",
-					"value": "u2",
-					"isDoubleQuote": true
-				}
-			}
-		},
-		{
-			"kind": "while",
+			"kind": "if",
 			"test": {
-				"kind": "variable",
-				"name": "u1",
-				"byref": false,
-				"curly": false
+				"kind": "bin",
+				"type": "==",
+				"left": {
+					"kind": "variable",
+					"name": "indarg",
+					"byref": false,
+					"curly": false
+				},
+				"right": {
+					"kind": "string",
+					"value": "",
+					"isDoubleQuote": true
+				}
 			},
 			"body": {
 				"kind": "block",
@@ -87,10 +48,19 @@
 					{
 						"kind": "if",
 						"test": {
-							"kind": "variable",
-							"name": "variable",
-							"byref": false,
-							"curly": false
+							"kind": "bin",
+							"type": "==",
+							"left": {
+								"kind": "variable",
+								"name": "indarg",
+								"byref": false,
+								"curly": false
+							},
+							"right": {
+								"kind": "string",
+								"value": "",
+								"isDoubleQuote": true
+							}
 						},
 						"body": {
 							"kind": "block",
@@ -100,14 +70,31 @@
 									"operator": "=",
 									"left": {
 										"kind": "variable",
-										"name": "f",
+										"name": "query",
 										"byref": false,
 										"curly": false
 									},
 									"right": {
-										"kind": "string",
-										"value": "",
-										"isDoubleQuote": true
+										"kind": "encapsed",
+										"value": [
+											{
+												"kind": "string",
+												"value": "SELECT *FROM siswa WHERE nis='",
+												"isDoubleQuote": false
+											},
+											{
+												"kind": "variable",
+												"name": "nis",
+												"byref": false,
+												"curly": false
+											},
+											{
+												"kind": "string",
+												"value": "'",
+												"isDoubleQuote": false
+											}
+										],
+										"type": "string"
 									}
 								}
 							]
@@ -120,131 +107,109 @@
 									"operator": "=",
 									"left": {
 										"kind": "variable",
-										"name": "a",
+										"name": "query",
 										"byref": false,
 										"curly": false
 									},
 									"right": {
-										"kind": "string",
-										"value": "",
-										"isDoubleQuote": true
+										"kind": "encapsed",
+										"value": [
+											{
+												"kind": "string",
+												"value": "SELECT *FROM siswa WHERE nis='",
+												"isDoubleQuote": false
+											},
+											{
+												"kind": "variable",
+												"name": "indarg",
+												"byref": false,
+												"curly": false
+											},
+											{
+												"kind": "string",
+												"value": "'",
+												"isDoubleQuote": false
+											}
+										],
+										"type": "string"
 									}
 								}
 							]
 						},
 						"shortForm": false
-					},
+					}
+				]
+			},
+			"alternate": {
+				"kind": "block",
+				"children": [
 					{
-						"kind": "while",
-						"test": {
+						"kind": "assign",
+						"operator": "=",
+						"left": {
 							"kind": "variable",
-							"name": "u2",
+							"name": "query",
 							"byref": false,
 							"curly": false
 						},
-						"body": {
-							"kind": "block",
-							"children": [
+						"right": {
+							"kind": "encapsed",
+							"value": [
 								{
-									"kind": "assign",
-									"operator": "=",
-									"left": {
-										"kind": "variable",
-										"name": "e",
-										"byref": false,
-										"curly": false
-									},
-									"right": {
-										"kind": "string",
-										"value": "",
-										"isDoubleQuote": true
-									}
-								}
-							]
-						},
-						"shortForm": false
-					},
-					{
-						"kind": "if",
-						"test": {
-							"kind": "variable",
-							"name": "variable1",
-							"byref": false,
-							"curly": false
-						},
-						"body": {
-							"kind": "block",
-							"children": [
-								{
-									"kind": "assign",
-									"operator": "=",
-									"left": {
-										"kind": "variable",
-										"name": "g",
-										"byref": false,
-										"curly": false
-									},
-									"right": {
-										"kind": "string",
-										"value": "",
-										"isDoubleQuote": true
-									}
+									"kind": "string",
+									"value": "SELECT *FROM siswa WHERE nis='",
+									"isDoubleQuote": false
 								},
 								{
-									"kind": "if",
-									"test": {
-										"kind": "variable",
-										"name": "variable2",
-										"byref": false,
-										"curly": false
-									},
-									"body": {
-										"kind": "block",
-										"children": [
-											{
-												"kind": "assign",
-												"operator": "=",
-												"left": {
-													"kind": "variable",
-													"name": "h",
-													"byref": false,
-													"curly": false
-												},
-												"right": {
-													"kind": "string",
-													"value": "",
-													"isDoubleQuote": true
-												}
-											}
-										]
-									},
-									"alternate": null,
-									"shortForm": false
+									"kind": "variable",
+									"name": "nis",
+									"byref": false,
+									"curly": false
+								},
+								{
+									"kind": "string",
+									"value": "'",
+									"isDoubleQuote": false
 								}
-							]
-						},
-						"alternate": null,
-						"shortForm": false
+							],
+							"type": "string"
+						}
 					}
 				]
 			},
 			"shortForm": false
 		},
 		{
-			"kind": "call",
-			"what": {
-				"kind": "identifier",
-				"resolution": "uqn",
-				"name": "mysql_query"
+			"kind": "assign",
+			"operator": "=",
+			"left": {
+				"kind": "variable",
+				"name": "q",
+				"byref": false,
+				"curly": false
 			},
-			"arguments": [
-				{
-					"kind": "variable",
-					"name": "f",
-					"byref": false,
-					"curly": false
-				}
-			]
+			"right": {
+				"kind": "call",
+				"what": {
+					"kind": "identifier",
+					"resolution": "uqn",
+					"name": "mysql_query"
+				},
+				"arguments": [
+					{
+						"kind": "variable",
+						"name": "query",
+						"byref": false,
+						"curly": false
+					},
+					{
+						"kind": "variable",
+						"name": "koneksi",
+						"byref": false,
+						"curly": false
+					}
+				]
+			}
 		}
 	],
 	"errors": []

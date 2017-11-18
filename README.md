@@ -230,3 +230,26 @@ mysql_query($f);
 [u2]: _GET["u2"]
 [u]: _GET["u"]
 -------------------------------------
+############# INPUT #############
+<?php
+$nis=$_POST['nis'];
+if ($indarg == "") {
+    if($indarg == ""){
+        $query="SELECT *FROM siswa WHERE nis='$nis'";    
+    }else{
+        $query="SELECT *FROM siswa WHERE nis='$indarg'";
+    }
+    $query="SELECT *FROM siswa WHERE nis='$nis'";
+} else {
+    $query="SELECT *FROM siswa WHERE nis='$indarg'";
+}
+$q=mysql_query($query,$koneksi);
+?>
+########################
+Processing ast_if_02.txt
+Possible [SQL injection] @ [Line:3] Sensitive sink [mysql_query] is accepting a tainted value/s [query]!
+------------Tainted values-----------
+[q]: (u'mysql_query', u'_POST["nis"]')
+[nis]: _POST["nis"]
+[query]: _POST["nis"]
+-------------------------------------

@@ -22,7 +22,7 @@ EQUALS_CHAR='='
 __linenumber__ = 0
 tainted={}
 current_ast={}
-fallback_taint_mode=0
+burst_taint=0
 
 #this is handy 
 sensitive_sink_names=set()
@@ -32,7 +32,7 @@ entry_point_names=set()
 patterns=[]
 
 #used where there are nested if conditions that have upper level tainting variables.
-if_chain_tainters=[]
+nested_chain_tainters=[]
 
 class Pattern:
     def __init__(self, name, entry=None, untaint_funcs=None, sinks=None):
@@ -314,7 +314,7 @@ def bin_handle(child):
     return ret
 
 def while_handle(child):
-    global __linenumber__, if_chain_tainters
+    global __linenumber__, nested_chain_tainters, burst_taint
     test = descend(child['test'])
     
     if test is not None:
@@ -323,19 +323,26 @@ def while_handle(child):
     
     body_children = child['body']['children']
 
+    # burst taint mode doesn't allow "assign_handler" to overwrite previousle tainted values in else cases
+    # Once a variable goes tainted in any branch it cannot be overwritten to untainted in others.
+    # Once you go black you never go back
+    # It is this way our program overestimates if else and while cases
+    burst_taint+=1
+
     for bch in body_children:
         __linenumber__+=1
         
         if test is not None:
             for i in test:
                 if i in tainted:
-                    if_chain_tainters = list(set().union(if_chain_tainters, [i]))
+                    nested_chain_tainters = list(set().union(nested_chain_tainters, [i]))
         
         v = descend(bch)
         
-        # get all if and else if tests until current block into if_chain_tainters
+        # after we descend on a nested if. it's else case might deactivate burst_taint
+        
     
-        for ifcht in if_chain_tainters:
+        for ifcht in nested_chain_tainters:
             if v is not None:
                 if ifcht not in v[0]:
                     if v[0] in tainted:
@@ -345,12 +352,13 @@ def while_handle(child):
                         #tainted[v[0]].extend([ifcht])
                     elif not isinstance(v[0], tuple):
                         tainted[v[0]] = [ifcht]
-        del if_chain_tainters[:]
         
+    del nested_chain_tainters[:]
+    burst_taint -= 1
     return None
 
 def if_handle(child):
-    global __linenumber__, if_chain_tainters, fallback_taint_mode
+    global __linenumber__, nested_chain_tainters, burst_taint
     test = descend(child['test'])
     
     if test is not None:
@@ -358,20 +366,29 @@ def if_handle(child):
     
     body_children = child['body']['children']
     
-    fallback_taint_mode=1
+    # burst taint mode doesn't allow "assign_handler" to overwrite previousle tainted values in else cases
+    # Once a variable goes tainted in any branch it cannot be overwritten to untainted in others.
+    # Once you go black you never go back
+    # It is this way our program overestimates if else and while cases
+    burst_taint += 1
 
     for bch in body_children:
         __linenumber__+=1
         
-        # get all if and else if tests until current block into if_chain_tainters
+        # get all if and else if tests until current block into nested_chain_tainters
         if test is not None:
             for i in test:
                 if i in tainted:
-                    if_chain_tainters = list(set().union(if_chain_tainters, [i]))
+                    nested_chain_tainters = list(set().union(nested_chain_tainters, [i]))
         
-        v = descend(bch)
 
-        for ifcht in if_chain_tainters:
+        v = descend(bch)
+        # after we descend on a nested if. it's else case might deactivate burst_taint
+        #if burst_taint == 0:
+        #    burst_taint = 1
+
+
+        for ifcht in nested_chain_tainters:
             if v is not None:
                 if ifcht not in v[0]:
                     if v[0] in tainted:
@@ -393,15 +410,15 @@ def if_handle(child):
                     for ach in alternate_children:
                         __linenumber__+=1
                     
-                        # get all if and else if tests until current block into if_chain_tainters
+                        # get all if and else if tests until current block into nested_chain_tainters
                         if test is not None:
                             for i in test:
                                 if i in tainted:
-                                    if_chain_tainters = list(set().union(if_chain_tainters, [i]))
+                                    nested_chain_tainters = list(set().union(nested_chain_tainters, [i]))
                         
                         v = descend(ach)
 
-                        for ifcht in if_chain_tainters:
+                        for ifcht in nested_chain_tainters:
                             if v is not None:
                                 if ifcht not in v[0]:            
                                     if v[0] in tainted:
@@ -411,14 +428,16 @@ def if_handle(child):
                                         #tainted[v[0]].extend([ifcht])
                                     elif not isinstance(v[0], tuple):
                                         tainted[v[0]] = [ifcht]
-                fallback_taint_mode=0                        
-                del if_chain_tainters[:]
+                #else case deactivates taint burst mode
+                #burst_taint -= 1                        
+                del nested_chain_tainters[:]
             elif a['kind'] == 'if':#nested if
                 descend(a)
         else:
-            fallback_taint_mode=0
-            del if_chain_tainters[:]
-    
+            #if there is no else case we deactivate burst taint mode
+            #burst_taint -= 1
+            del nested_chain_tainters[:]
+    burst_taint-=1
     return None
 
 
@@ -435,7 +454,7 @@ def encapsed_handle(child):
 
 
 def assign_handle(child):
-    global tainted, fallback_taint_mode
+    global tainted, burst_taint
     #we know we got an assign kind object
     rval = descend(child['right'])
     #this descent guarantees that it will populated tainted before lvalue check
@@ -480,13 +499,13 @@ def assign_handle(child):
             return lval
         #begin added
         else:
-            print(fallback_taint_mode)
             # lval tainted in one branch and being overridden in another with untainted value
             # out program over estimates because it is dangerous to have tainted values in some branches
             # and not in others
             # basically normal code would mark the variable as untainted.
             # this code means: "once you go tainted in a branch you never go back".
-            if(fallback_taint_mode) and lval[0] in tainted:
+            # Once you go black you never go back.
+            if(burst_taint > 0) and lval[0] in tainted:
                 return lval
         #end added
 
@@ -512,7 +531,6 @@ def offsetlookup_handle(child):
             else:
                 return p1+'['+p2+']'
     return 0
-
 
 
 def call_handle(child):

@@ -324,6 +324,7 @@ def while_handle(child):
     
     for bch in body_children:
         __linenumber__+=1
+        
         if test is not None:
             for i in test:
                 if i in tainted:
@@ -389,14 +390,15 @@ def if_handle(child):
                 if alternate_children is not None:
                     for ach in alternate_children:
                         __linenumber__+=1
-                        v = descend(ach)
-
+                    
                         # get all if and else if tests until current block into if_chain_tainters
                         if test is not None:
                             for i in test:
                                 if i in tainted:
                                     if_chain_tainters = list(set().union(if_chain_tainters, [i]))
                         
+                        v = descend(ach)
+
                         for ifcht in if_chain_tainters:
                             if v is not None:
                                 if ifcht not in v[0]:            

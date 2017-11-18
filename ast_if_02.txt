@@ -189,6 +189,37 @@
 										"value": "",
 										"isDoubleQuote": true
 									}
+								},
+								{
+									"kind": "if",
+									"test": {
+										"kind": "variable",
+										"name": "variable2",
+										"byref": false,
+										"curly": false
+									},
+									"body": {
+										"kind": "block",
+										"children": [
+											{
+												"kind": "assign",
+												"operator": "=",
+												"left": {
+													"kind": "variable",
+													"name": "h",
+													"byref": false,
+													"curly": false
+												},
+												"right": {
+													"kind": "string",
+													"value": "",
+													"isDoubleQuote": true
+												}
+											}
+										]
+									},
+									"alternate": null,
+									"shortForm": false
 								}
 							]
 						},

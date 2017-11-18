@@ -5,6 +5,8 @@ $u2 = $_GET["u2"];
 while($u1){
     if($variable){
         $f = "";
+    }else{
+        $a = "";
     }
     while($u2){
         $e= "";

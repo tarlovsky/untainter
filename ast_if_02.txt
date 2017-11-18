@@ -112,7 +112,26 @@
 								}
 							]
 						},
-						"alternate": null,
+						"alternate": {
+							"kind": "block",
+							"children": [
+								{
+									"kind": "assign",
+									"operator": "=",
+									"left": {
+										"kind": "variable",
+										"name": "a",
+										"byref": false,
+										"curly": false
+									},
+									"right": {
+										"kind": "string",
+										"value": "",
+										"isDoubleQuote": true
+									}
+								}
+							]
+						},
 						"shortForm": false
 					},
 					{

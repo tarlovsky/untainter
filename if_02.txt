@@ -1,16 +1,17 @@
 <?php
-
-$nis=$_POST['nis'];
-if ($indarg == "") {
-    if($indarg == ""){
-        $query="SELECT *FROM siswa WHERE nis='$nis'";    
-    }else{
-        $query="SELECT *FROM siswa WHERE nis='$indarg'";
+$u = $_GET["u"];
+$u1 = $_GET["u1"];
+$u2 = $_GET["u2"];
+while($u1){
+    if($variable){
+        $f = "";
     }
-} else {
-    $query="SELECT *FROM siswa WHERE nis='$nis'";    
+    while($u2){
+        $e= "";
+    }
+    if($variable1){
+        $g = "";
+    }
 }
-
-$q=mysql_query($query,$koneksi);
-
+mysql_query($f);
 ?>

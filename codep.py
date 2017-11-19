@@ -157,12 +157,11 @@ def descend(child):
         elif(child['kind'] in 'echo', 'print'):
             return eval('call_handle(child)')
         else:
-            #switch funciton call here
+            #this branch is not called for anything useful
+            #may delete in future commits after thorough testing only.
             routes = goto(child["kind"])
-            print("ROUTES")
-            print(routes)
+            
             for route in routes:
-                #argument list?
                 if isinstance(child[route], list):
                     res = []
                     for i in range(0, len(child[route])):
@@ -171,7 +170,6 @@ def descend(child):
                 else:
                     #dives depper in cases line parenthesis->inner
                     return descend(child[route])
-            
     return None
 
 def detuple(tup):
@@ -184,9 +182,10 @@ def detuple(tup):
     else:
         return tup
 
-#returns original entry for a tainted variable
-#what if multiple entries
+
 def taint_origin(var, result):
+    """ returns original entris for a tainted variable"""
+
     global tainted, entry_point_names
     
     # nested calls (u'pg_escape_string', (u'mysql_real_escape_string', u'u1'))
@@ -201,8 +200,9 @@ def taint_origin(var, result):
             if v != var:
                 taint_origin(v, result)
     
-#check if any kind of entry point from all patterns
+
 def is_entry_point(s):
+    """check if s is an entry point from all patterns"""
     
     s = detuple(s)
     
@@ -288,8 +288,9 @@ def is_untaint(origin, id):
                     return True
         return False
 
-#returns list of cascaded tainted values
+
 def bin_handle(child):
+    """returns list of cascaded tainted values"""
     global tainted
     ret=[]
     tmp=[]
@@ -454,6 +455,7 @@ def encapsed_handle(child):
 
 
 def assign_handle(child):
+    """handles assignments"""
     global tainted, burst_taint
     #we know we got an assign kind object
     rval = descend(child['right'])
@@ -473,7 +475,6 @@ def assign_handle(child):
     #   collect q into q
     #   $q = $_GET["user"];
     #   $q = $q.$u; 
-    
     if operator != "=":
         for v in lval:
             if v in tainted and rval is not None:
@@ -517,8 +518,9 @@ def assign_handle(child):
         
     return lval
 
-#returns if entry point like: $_GET['name'] doesnt return if $a[1] normal lookup
+
 def offsetlookup_handle(child):
+    """returns if entry point like: $_GET['name'] doesnt return if $a[1] normal offset lookup"""
     w = child['what']
     o = child['offset']
     if w and o:

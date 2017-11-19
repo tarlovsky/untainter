@@ -34,6 +34,19 @@ patterns=[]
 #used where there are nested if conditions that have upper level tainting variables.
 nested_chain_tainters=[]
 
+#not all of them really terminals
+#variable had to be inclueded
+terminals=[
+    u'identifier',
+    u'variable',
+    u'number',
+    u'string',
+    u'constref',
+    u'offsetlookup',
+    u'boolean',
+    u'inline'
+]
+
 class Pattern:
     def __init__(self, name, entry=None, untaint_funcs=None, sinks=None):
         self.name=name
@@ -42,8 +55,8 @@ class Pattern:
         self.untaint_funcs=untaint_funcs[:]
         self.sinks=sinks[:]
 
-#gets vulnerabiity name pattern list
 def get_vulnerability_name(sink_id):
+    """gets vulnerabiity name from pattern list"""
     global patterns
     
     for p in patterns:
@@ -81,11 +94,9 @@ def init(names=None):
 
         with open(str(fname),'r') as current_tree:
             current_ast=json.load(current_tree) 
-            print("########################")
-            print("Processing %s" % (fname))
+            print("######################## Processing %s ########################" % (fname))
             __linenumber__ = 0
             for __linenumber__, ch in enumerate(current_ast["children"]):
-                #print("\n*-----------Line: %d---------*" % i)
                 descend(ch)
             #print('\nTainted variables: '+str(tainted))
             print_tainted()
@@ -94,7 +105,6 @@ def init(names=None):
             tainted.clear()
             
     return
-
 
 def print_tainted():
     """prints all tainted variables"""
@@ -112,21 +122,9 @@ def print_tainted():
     print("-------------------------------------")
             
 
-#not all of them really terminals
-#variable had to be inclueded
-terminals=[
-    u'identifier',
-    u'variable',
-    u'number',
-    u'string',
-    u'constref',
-    u'offsetlookup',
-    u'boolean',
-    u'inline'
-]
 
-#function that goes down a level on the ast
 def descend(child):
+    """ function that goes down a level """
     global terminals, entry_point_names, tainted
     
     if child['kind'] in terminals:
@@ -172,6 +170,7 @@ def descend(child):
                     #dives depper in cases line parenthesis->inner
                     return descend(child[route])
     return None
+
 
 def detuple(tup):
     """ gets argument value from nested function calls """
@@ -243,9 +242,9 @@ def is_sink(origin, id):
                     return True
         return False
 
-#does this untaint function belong to the sensitive sink?
+
 def is_untaint_for_sink(untaint, sink):
-    """Does untaint fix sink"""
+    """Does this untaint fix this sink, according to all patterns."""
     global patterns
     if None not in (untaint, sink):
         found = 0
@@ -263,8 +262,9 @@ def is_untaint_for_sink(untaint, sink):
                 return True
     return False
 
-# TODO pass in sink-id
+
 def is_untaint(origin, id):
+    """ origin is entry point liek $_GET $_POST etc. """
     global patterns
 
     if None not in (origin,id):
@@ -316,6 +316,7 @@ def bin_handle(child):
     return ret
 
 def while_handle(child):
+    """handles while statements"""
     global __linenumber__, nested_chain_tainters, burst_taint
     test = descend(child['test'])
     
@@ -360,6 +361,7 @@ def while_handle(child):
     return None
 
 def if_handle(child):
+    """handles if statements"""
     global __linenumber__, nested_chain_tainters, burst_taint
     test = descend(child['test'])
     

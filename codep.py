@@ -95,8 +95,9 @@ def init(names=None):
             
     return
 
-#prints all tainted variables, usually at the end of the program
+
 def print_tainted():
+    """prints all tainted variables"""
     global tainted
     #print tainted
     print("------------Tainted values-----------")

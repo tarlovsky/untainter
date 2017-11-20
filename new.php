@@ -1,0 +1,13 @@
+<?php
+$u = $_GET["u"];
+$p = $_GET["p"];
+$koneksi = pg_escape_string($_GET["koneksi"]);
+$b = $b;
+$b = pg_escape_string($u.$p.pg_escape_string($u.$p));
+$tmp = mysql_escape_string($tmp);
+$tmp = pg_query($b, $koneksi);
+$t = ($tmp);
+mysql_query($t);
+?>
+
+

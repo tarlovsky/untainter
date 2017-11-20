@@ -10,13 +10,16 @@ $tmp = pg_query($b, $koneksi);
 $t = ($tmp);
 mysql_query($t);
 ?>
-*-----------Line: 6---------*
-[*] @ Sensitive sink [pg_query] has beed corrected!
-
-*-----------Line: 7---------*
-
-*-----------Line: 8---------*
-[*] @ Sensitive sink [mysql_query] is accepting a tainted value/s [t]!
+######################## Processing ast_new.txt ########################
+Possible [SQL injection] @ [Line:7] Sensitive sink [pg_query] has beed corrected!
+Possible [SQL injection] @ [Line:9] Sensitive sink [mysql_query] is accepting a tainted value/s [t]!
+------------Tainted values-----------
+[tmp]: (u'pg_query', (u'pg_escape_string', (u'pg_escape_string', u'_GET["p"]'))),(u'pg_query', (u'pg_escape_string', (u'pg_escape_string', u'_GET["u"]'))),(u'pg_query', (u'pg_escape_string', u'_GET["p"]')),(u'pg_query', (u'pg_escape_string', u'_GET["u"]')),(u'pg_query', (u'pg_escape_string', u'_GET["koneksi"]'))
+[b]: (u'pg_escape_string', (u'pg_escape_string', u'_GET["p"]')),(u'pg_escape_string', (u'pg_escape_string', u'_GET["u"]')),(u'pg_escape_string', u'_GET["p"]'),(u'pg_escape_string', u'_GET["u"]')
+[koneksi]: (u'pg_escape_string', u'_GET["koneksi"]')
+[p]: _GET["p"]
+[u]: _GET["u"]
+[t]: (u'pg_query', (u'pg_escape_string', (u'pg_escape_string', u'_GET["p"]'))),(u'pg_query', (u'pg_escape_string', (u'pg_escape_string', u'_GET["u"]'))),(u'pg_query', (u'pg_escape_string', u'_GET["p"]')),(u'pg_query', (u'pg_escape_string', u'_GET["u"]')),(u'pg_query', (u'pg_escape_string', u'_GET["koneksi"]'))
 ############# INPUT #############
 <?php
 $u = $_GET['username'];

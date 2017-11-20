@@ -643,7 +643,8 @@ def call_handle(child):
                             else:
                                 print('Possible [%s] @ [Line:%d] Sensitive sink [%s] is accepting a tainted value/s [%s]!' % (get_vulnerability_name(id), __linenumber__ + 1, id, str(detuple(v))))
                             ret = 0
-
+                        #The argument itself is an entry point
+                        # we know it is valid for THIS SINK because of the englobing if that checks original_entries against the function's ID
                         elif is_entry_point(v):
                             taint_update.append( (id, v) ) 
                             print('Possible [%s] @ [Line:%d] Sensitive sink [%s] is accepting a tainted value/s coming from [%s]!' % (get_vulnerability_name(id), __linenumber__ + 1, id, v))
@@ -657,6 +658,7 @@ def call_handle(child):
                                 taint_update.append( (id, t) ) 
 
         if tainted_count > 0 and corrected > 0 and corrected == tainted_count:
+            print(tainted)
             print('Possible [%s] @ [Line:%d] Sensitive sink [%s] has beed corrected!' % (get_vulnerability_name(id), __linenumber__ + 1,  id))                
         
         if len(taint_update) > 0:

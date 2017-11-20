@@ -256,3 +256,42 @@ Possible [SQL injection] @ [Line:3] Sensitive sink [mysql_query] is accepting a 
 [nis]: _POST["nis"]
 [query]: _POST["nis"]
 -------------------------------------
+############ INPUT ##############
+<?php
+$nis=$_POST['nis'];
+$a=$_POST['a'];
+$b=$_POST['b'];
+$koneksi = $_GET['koneksi'];
+$query="SELECT * FROM siswa WHERE nis='$nis' GROUP BY ID";
+mysql_query(($query=($a.$b)),$koneksi);
+?>
+######################## Processing ast_new.php ########################
+Possible [SQL injection] @ [Line:6] Sensitive sink [mysql_query] is accepting a tainted value/s [query]!
+Possible [SQL injection] @ [Line:6] Sensitive sink [mysql_query] is accepting a tainted value/s [koneksi]!
+------------Tainted values-----------
+[a]: _POST["a"]
+[nis]: _POST["nis"]
+[b]: _POST["b"]
+[query]: _POST["b"],_POST["a"]
+[koneksi]: _GET["koneksi"]
+-------------------------------------
+############ INPUT ##############
+<?php
+
+$u = $_GET['passwd'];
+
+if ( $u !== "123" ) {
+    $q = $u;
+    mysql_query($q);
+} else {
+    $b = $good_variable;
+};
+
+?>
+######################## Processing ast_new.php ########################
+Possible [SQL injection] @ [Line:4] Sensitive sink [mysql_query] is accepting a tainted value/s [q]!
+------------Tainted values-----------
+[q]: u,_GET["passwd"]
+[b]: u
+[u]: _GET["passwd"]
+-------------------------------------

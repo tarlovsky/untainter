@@ -34,7 +34,7 @@ patterns=[]
 #used where there are nested if conditions that have upper level tainting variables.
 nested_chain_tainters=[]
 
-#not all of them really terminals
+#not all of them really are terminals
 #variable had to be inclueded
 terminals=[
     u'identifier',
@@ -658,7 +658,7 @@ def call_handle(child):
                                 taint_update.append( (id, t) ) 
 
         if tainted_count > 0 and corrected > 0 and corrected == tainted_count:
-            print(tainted)
+            #print(tainted)
             print('Possible [%s] @ [Line:%d] Sensitive sink [%s] has beed corrected!' % (get_vulnerability_name(id), __linenumber__ + 1,  id))                
         
         if len(taint_update) > 0:

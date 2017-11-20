@@ -224,7 +224,8 @@ while($u1){
 }
 mysql_query($f);
 ?>
-########################
+######################## Processing ast_new.php ########################
+Possible [SQL injection] @ [Line:5] Sensitive sink [mysql_query] is accepting a tainted value/s [f]!
 ------------Tainted values-----------
 [e]: u1,u2
 [g]: u1
@@ -248,8 +249,7 @@ if ($indarg == "") {
 }
 $q=mysql_query($query,$koneksi);
 ?>
-########################
-Processing ast_if_02.txt
+######################## Processing ast_new.php ########################
 Possible [SQL injection] @ [Line:3] Sensitive sink [mysql_query] is accepting a tainted value/s [query]!
 ------------Tainted values-----------
 [q]: (u'mysql_query', u'_POST["nis"]')

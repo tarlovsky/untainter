@@ -1,19 +1,16 @@
 #!/usr/bin/python
+
 import sys
-import json
 import re
 try:
     import Queue as Q # versions prior to 3
 except ImportError:
     import queue as Q
 
-
-
 PATTERNS_FNAME="lookup_list"
 PHP_VARS_REG='(\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)'
 PHP_VAR_CHARS='[a-z][A-Z][0-9]'
 PHP_CONCAT_OPS_1="\.|\+|\*|\/"
-
 
 #need coma for this
 # (2, '$b', ' str_cat($b = $_GET["vuln"]), htmlentities($b)')
@@ -22,14 +19,8 @@ OPERATORS='-+*/|~^&'
 #snippet files to clean
 snippet_files=[]
 EQUALS_CHAR='='
-
-tainted={}
-current_ast={}
-sensitive_sink_names=set()
-untaint_func_names=set()
-entry_point_names=set()
+#patterns must be
 patterns=[]
-
 
 class Pattern:
     def __init__(self, name, entry=None, untaint_funcs=None, sinks=None):
@@ -38,11 +29,234 @@ class Pattern:
         self.entry=entry[:]
         self.untaint_funcs=untaint_funcs[:]
         self.sinks=sinks[:]
+    #def __str__(self):
+        #print("[*]"+self.name.join(map(str,self.entry)).join(map(str,self.untaint_funcs)).join(map(str,self.sinks)))
+        #print(map(str,self.entry))
 
-     
+
+#We call parse for each FILE
+def parse(lines=None):
+    global patterns, PHP_VARS_REG, PHP_CONCAT_OPS, PHP_CONCAT_OPS_1
+    if lines is None:
+        lines=[]
+    lr=[]
+    
+    def get_valid_lvalue(s):
+        global OPERATORS
+        retval=''
+        if len(s) <= 1:
+            return 0
+        s=s.strip()
+        preg=re.compile("[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*")
+        
+        for i, ch in enumerate(reversed(s)):
+            #no match with legal php variable chars
+            if preg.match(ch) == None:
+                
+                #allow this '$a  + '
+                #and this '$a[] +'
+                if ch in (" ", "[" , "]") and len(retval) == 0:
+                    continue
+               
+                #allow first characters to be operators
+                #$b-=1
+                #$b+=1 
+                #$etc
+                if i == 0 and ch in OPERATORS:
+                    continue
+
+                if ch == '$' and len(retval) > 0:
+                    retval+=ch
+                    #if it doesnt match it can only be $                   
+                    return retval[::-1]
+                else:
+                    return 0
+            retval+=ch
+        #failsafe return
+        return 0
+    
+    
+    # getting all l and r values            
+    for line in lines:
+
+        #scan for lr assignments        
+        for equals_pos, char in enumerate(reversed(line[1])):
+            
+            lparen_count, rparen_count = 0, 0
+            #valid_lvalue must be php assignable $variable
+            #line[1][:-equals_pos-1] gives value to the left of equals
+            lval = get_valid_lvalue( line[1][:-equals_pos-1] )
+            rval=''
+            if char == EQUALS_CHAR and lval:
+                line_len=len(line[1])
+                #lval=line[1][ line[1][:-equals_pos].rfind('$'):-equals_pos-1].strip()
+                #rval=''
+
+                #right value might be inside parenthesis
+                #like so: ($b=($b-($b=1)))
+                #right value might be concatenated like so
+                i = line_len - equals_pos - 1
+                while i < line_len - 1:
+                    i+=1
+
+                    if line[1][i] == ')': 
+                        rparen_count+=1
+                        if lparen_count == 0 or lparen_count == rparen_count:
+                            
+                            if lparen_count != 0 and i < line_len - 1 and line[1][i+1] in PHP_CONCAT_OPS:
+                                lparen_count=rparen_count=0
+                                continue
+                            
+                            rval=line[1][-equals_pos:i+1]
+                            i = line_len - 1
+                            lparen_count, rparen_count = 0,0
+                            
+
+                    elif line[1][i] == '(': 
+                        lparen_count+=1
+
+                    elif i == len(line[1])-1:
+                        rval=line[1][-equals_pos:].strip()
+                    
+                    #print(line[1][i], lparen_count, rparen_count)
+                
+                lr.append((line[0],lval,rval))
+             
+
+    def get_line(l):
+        for i in range(len(lines)):
+            if lines[i][0] == l:
+                return lines[i][1]
+    
+    def entry_point(flist,s,sstart):
+        return 0
+
+    def trailing_functions(flist, s, sstart):
+
+        print('testing', s, sstart)
+
+        for f in flist:
+            #print('Untaint func:', f)
+            f=f.strip()
+            #check if function fits to the left:
+            if(len(f)+1<=sstart):#fit left bracket and function
+                i,j = len(f)-1,sstart-1
+                while i >= 0:
+                    while f[i] == ' ' or f[i] == '(': i-=1 
+                    while s[j] == ' ' or s[j] == '(': j-=1 #consume multiple opening parenthesis
+                    #print(i,j,f[i], s[j])
+                    if f[i] != s[j]:
+                        return 0
+                    i-=1
+                    j-=1
+                return 1
+        return 0
+
+    #traverses lr til root
+    #(Line, )
+    def rec_climb(varg):#vulnerable argument tuple
+        
+        varg_name=varg[3]
+        start=varg[0]
+        #line[1][line[1][:-equals_pos].rfind('$')
+        line = get_line(varg[0])
+        idx = line[varg[1]:].find('$')#first parm of vuln function
+        print(line[varg[1]:][idx:])
+        #print (line,idx)
+        
+        if(trailing_functions(varg[4].untaint_funcs, line[varg[1]:], idx)):
+            print('Last chance to untaint was successful')
+            print
+
+        return
+
+        # in reality this code is creating the tree during runtime and does checks streight away
+        #lrtuple: (line,lval,rval)
+        for lrtuple in reversed(lr):
+            if (start <= lrtuple[0]) and varg_name in lrtuple[1]:#start from at least the line with vulnerability for nested lr assignment checks
+                #get all right value PHP variables
+                for rarg in re.finditer(PHP_VARS_REG, lrtuple[2]):
+
+                    #print("Right vals:",rarg.group(), rarg.start())
+                    #TODO check if entry point
+                    #trailing_function(flist,s,sstart)
+                    if( trailing_functions(varg[4].untaint_funcs, lrtuple[2], rarg.start()) ):
+                        print('At least one Untainet')
+                    #TODO check for surrounding function corrector
+
+                    #trailing_function(flist,s,sstart)
+                    #print(varg[4].untaint_funcs)
+                    
+
+                    #TODO send it off recursively with artificial tuple
+
+                    #rec_climb([start, j, var_count, var, p])
+                    
+                    
+        return 1
+    
+    #rec_climb(None)
+
+    #(Line,Vulnerable function parameter start index, Argument index, Argument name, Vulnerability index in)
+    #
+    unique_line_vuln_vars=[]
+    vuln_id=0
+
+
+    #traverse lines bottom up and find all occurances of sensitive sinks.
+    for line in reversed(lines):
+
+        #each known patern
+        for p in patterns:
+            #has a list of sinks
+            for s in p.sinks:
+                if s in line[1]:
+                    #treat all occurences of sensitive sink in a line
+                    #all matches of dangerous; think of nested mysql_query(mysql_query($vagarg))
+                    all_vuln_end_indexes=[i.end() for i in re.finditer(s, line[1])]
+                    #print(all_vuln_end_indexes)
+
+                    #search to the right to find var involved
+                    #regexp actually comes from PHP manual for PHP variables
+                    #look for all of it's parameters because even CONNECTION STRINGS may sometimes come from the client.
+                    vuln_len=len(all_vuln_end_indexes)
+                    for i in range(0, vuln_len):# vuln_end_index in enumerate(all_vuln_end_indexes):
+                        
+                        #deals with nested sinks
+                        #catch all $ variables in between sensitive sinks.
+                        #walk in between each sensitive sink and collect $vars
+                        j=all_vuln_end_indexes[i]
+                        k=all_vuln_end_indexes[i+1] if i < vuln_len - 1 else len(line[1])
+
+                        for var_count, var in enumerate(re.findall(PHP_VARS_REG, line[1][j:k])):
+
+                            tuple_to_add=[line[0], j, var_count, var, p, vuln_id]#p is dyn link to pattern
+                            vuln_id=vuln_id+1
+                            if tuple_to_add not in unique_line_vuln_vars:
+                                unique_line_vuln_vars.append(tuple_to_add)
+                    #print(unique_line_vuln_vars)
+                    #print("[*] DANGEROUS ARGUMENT:["+str(dangerous_line_number)+ ", " + str(dangerous_argument_name) + "]" )
+                    #q.put(line)#invert priority
+                    #print('[*] Code ['+str(line[0])+', '+line[1] + '] may contain a \'' + p.name + '\' vulnerability.\n')
+
+
+    for ele in lr:
+        print(ele)
+    print
+    
+    #for each vuln we must get an all clear for all sinks and a printout of what functions were used to unsanitize
+    for ele in unique_line_vuln_vars:
+        #print("[*]=======Calling recursive climb on %s =================" % (ele))
+        print(ele)
+        #rec_climb(ele)
+        
+        
+
+    #while not q.empty():
+        #print(q.get())
 
 def init(names=None):
-    global patterns, PATTERNS_FNAME, snippet_files, tainted
+    global patterns, PATTERNS_FNAME, snippet_files
 
     #load vuln patterns from file into memory
     pattern_files=open(PATTERNS_FNAME,'r').read().strip().split('\n\n')
@@ -50,13 +264,6 @@ def init(names=None):
         #hey i didn't make the file templates
         #splits splits everywhere
         tmp=pattern.split('\n')
-        #easy lookup later
-        for e in iter(tmp[3].split(',')):
-            sensitive_sink_names.add(e)
-        
-        for e in iter(tmp[1].split(',')):
-            entry_point_names.add(e)
-
         patterns.append(
             Pattern(tmp[0],#name
                     tmp[1].split(','),#entry points
@@ -66,17 +273,40 @@ def init(names=None):
     #check code snippets one by one
     for fname in names:
         try:
-            with open(str(fname),'r') as current_tree:
-                current_ast=json.load(current_tree) 
-                
-                for i, ch in enumerate(current_ast["children"]):
-                    print("\n*-----------Line: %d---------*" % i)
-                    descend(ch)
-                print('\nTainted variables: '+str(tainted))
-                #cleanup for next file
-                
-                return
-                parse(arr)
+            with open(str(fname),'r') as current_snippet:
+                #by splitting with ; we mostly guarantee top down execution order
+                #for cases like this we must strip each line
+                #echo $b;      echo $b;
+                arr=[]
+                #sql lines poorly padded
+                orphan_line_no=0
+                orphan_lines=[]
+                for line_no, line in enumerate(current_snippet):
+                    
+                    if line.strip()[-1] not in ';':
+                        orphan_lines.append(line.replace('\n',''))
+                    else:
+                        #line ends in ; could be our lucky guy
+                        if len(orphan_lines) > 0:
+                            #print(orphan_lines)
+                            #print(line)
+                            #do we have anything to prepend from the past? 
+                            t=line
+                            line=''
+                            for l in orphan_lines:
+                                line=line.strip()+' '+l 
+                            line=line.strip()+' '+t
+                            line_no-=len(orphan_lines)
+                            #del for next lucky guy
+                            del orphan_lines[:]
+                    
+                    if line.strip()[-1] in ';':
+                        for ins in line.replace('\n','').split(';'):
+                            if ins:
+                                arr.append((line_no+1, ins.strip()))
+
+
+                parse(arr)######################################
 
         finally:
             if len(snippet_files) > 0:
@@ -85,447 +315,8 @@ def init(names=None):
                     f.close()
 
 
-
-#not really terminals but hey 
-terminals=[
-    u'identifier',
-    u'variable',
-    u'number',
-    u'string',
-    u'constref',
-    u'offsetlookup',
-    u'boolean',
-    u'inline'
-]
-
-def descend(child):
-    global terminals, entry_point_names, tainted
-    
-    if child['kind'] in terminals:
-        #return variable name
-        if('name' in child.keys()):
-            return child['name']
-        elif('offset' in child.keys()):
-            return offsetlookup_handle(child)
-        elif('identifier' in child.keys()):
-            return child['name']
-    else:
-        
-        #TODO last; al of these calls can be collapsed into a single eval call.
-        #but we must guarantee that
-        if child['kind'] in 'assign':
-            return eval(child['kind']+"_handle(child)")
-        elif child['kind'] == 'bin':   
-            return eval(child['kind']+'_handle(child)') 
-        elif child['kind'] == 'call':
-            return eval(child['kind']+'_handle(child)') 
-        elif(child['kind'] == 'encapsed'):
-            return eval(child['kind']+'_handle(child)') 
-        elif(child['kind'] == 'if'):
-            return eval(child['kind']+'_handle(child)')
-        elif(child['kind'] == 'echo'):
-            return eval('call_handle(child)')
-        else:
-            #switch funciton call here
-            routes = goto(child["kind"])
-            
-            for route in routes:
-                #argument list?
-                if isinstance(child[route], list):
-                    res = []
-                    for i in range(0, len(child[route])):
-                        return res.append(descend(child[route][i]))
-                else:
-                    #dives depper in cases line parenthesis->inner
-                    return descend(child[route])
-            
-            
-    return None
-
-def detuple(tup):
-    """ gets argument value from nested function calls """
-    """ (u'pg_escape_string', (u'mysql_real_escape_string', u'u1')) """
-    if isinstance(tup, tuple):
-        tup = tup[1]
-        return detuple(tup)
-    else:
-        return tup
-
-#returns original entry for a tainted variable
-#what if multiple entries
-def taint_origin(var, result):
-    global tainted, entry_point_names
-    
-    # nested calls (u'pg_escape_string', (u'mysql_real_escape_string', u'u1'))
-    var = detuple(var)
-
-    for n in entry_point_names:
-        if n in '$'+var:
-            result.append(var)
-    
-    if var in tainted:
-        for v in tainted[var]:
-            taint_origin(v, result)
-    
-
-def is_entry_point(s):
-    
-    s = detuple(s)
-    
-    
-    #if isinstance(s, tuple):
-        #s = s[1]
-        
-    global entry_point_names
-    for e in entry_point_names:
-        if e in '$'+s:
-            return 1
-    return 0
-
-#origin array
-def is_sink(origin, id):
-    """ origin is a list """
-    """ need at least one match """
-    global patterns
-    if None not in (origin,id):
-        if not isinstance(origin, list):
-            origin = [origin]
-        for o in origin:
-            if isinstance(o, tuple):
-                o = o[1]
-            found = 0
-            for p in patterns:
-                #has to be in same pattern
-                found = 0
-                for sink in p.sinks:
-                    if id == sink:
-                        found = found + 1
-                        break;
-                for e in p.entry:
-                    if e in '$'+o:
-                        found = found + 1
-                        break;
-                if found == 2:
-                    return True
-        return False
-
-#does this untaint function belong to the sensitive sink?
-def is_untaint_for_sink(untaint, sink):
-    """Does untaint fix sink"""
-    global patterns
-    if None not in (untaint, sink):
-        found = 0
-        for p in patterns:
-            found = 0
-            for u in p.untaint_funcs:
-                if untaint == u:
-                    found = found + 1
-                    break;
-            for s in p.sinks:
-                if s == sink:
-                    found = found + 1
-                    break;
-            if found == 2:
-                return True
-    return False
-
-# TODO pass in sink-id
-def is_untaint(origin, id):
-    global patterns
-
-    if None not in (origin,id):
-        if not isinstance(origin, list):
-            origin = [origin]
-        for o in origin:
-            if isinstance(o, tuple):
-                o = o[1]
-            found = 0
-            for p in patterns:
-                #has to be in same pattern
-                found = 0
-                for u in p.untaint_funcs:
-                    if id == u:
-                        found = found + 1
-                        break;
-                for e in p.entry:
-                    if e in '$'+o:
-                        found = found + 1
-                        break;
-                if found == 2:
-                    return True
-        return False
-
-#returns list of cascaded tainted values
-def bin_handle(child):
-    global tainted
-    ret=[]
-    tmp=[]
-    lval = descend(child['left'])     
-    rval = descend(child['right'])
-    
-    #untaint function calls block propagation of taint values and return None
-    if rval is not None:
-        rval = rval if isinstance(rval, list) else [rval]
-        tmp.extend(rval)
-    if lval is not None:
-        lval = lval if isinstance(lval, list) else [lval]
-        tmp.extend(lval)
-    
-    
-    #ret.extend([v for v in tmp if (v not in ret) and (v in tainted or is_entry_point(v))])
-    for v in tmp:
-        if isinstance(v,tuple) or (v not in ret and (v in tainted or is_entry_point(v))):
-            ret.append(v)
-    
-    #we shall only return tainted values from the binary concatenation
-    return ret
-
-def if_handle(child):
-    test = descend(child['test'])
-    if test is not None:
-        test = test if isinstance(test, list) else [test]
-        for v in test:
-            if v and (v in tainted or is_entry_point(v)):
-                print("If cicle has been compromised through user input!")
-
-    body_children = child['body']['children']
-    alternate_children = child['alternate']['children']
-    for ch in body_children+alternate_children:
-        descend(ch)
-                    
-    print("IFBIN"+str(test))
-    #for i, ch in enumerate(child["children"]):
-        #descend(ch)
-    return None
-
-def encapsed_handle(child):
-    ret = []
-
-    for i in child['value']:
-        val = descend(i)
-        if val:
-            ret.append(val)
-    
-    return ret
-
-def call_handle(child):
-    global tainted
-
-    #print("TAINTED: %s" % str(tainted))
-    
-    original_entry = None
-    args = child['arguments']
-    
-    
-    if child['kind'] == 'call':
-        id = descend(child['what'])
-    else:
-        #echo, printf
-        id = child['kind']
-    
-    argv = []
-
-    
-    for arg in args:
-        #print("%s ARGS inside : %s\n" % (id ,str(arg)))
-        temp = descend(arg)
-        
-        if isinstance(temp, list):
-            argv.extend(temp)
-        else:
-            argv.append(temp)
-        
-        if temp and len(temp) == 0 and is_entry_point(temp):
-            tainted[temp] = []
-    
-    #print("%s Descended ARGS %s " % (id, str(argv)))
-
-    if len(argv) > 0 and argv:
-        
-        # gets entry point for any variable
-        # returns entry point if argv[0] is entry point
-        
-        
-        taint_update = []  
-        ret=0
-        corrected = 0
-        
-        #print(tainted)
-        
-        for v in argv:
-            
-            original_entries=[]
-            
-            if v is not None:
-                #taint_origin performs a detuple on v
-                taint_origin(v, original_entries)
-            
-            if detuple(v) in tainted or is_entry_point(detuple(v)):    
-                #is this a sink that is vulnerable to it's arg's original taint value? (i.e.: _GET, ..etc)        
-                if original_entries and is_sink(original_entries, id):
-                    
-                    if v in tainted:
-                        for e in tainted[v]:
-                            ret += traverse(e, id)#are all of them clear?   
-                                
-                        # changed from ret == 2 * len(tainted[v]):
-                        #           to ret >= 2 * len(tainted[v]):
-                        # because of nested untaint functions
-                        # TODO Treat sensitive sinks after they've been processed.  
-                        if isinstance(v, tuple):
-                                taint_update.append( (id, v) ) 
-                        else:
-                            for t in tainted[v]:
-                                taint_update.append( (id, t) )
-
-                        if ret > 0 and ret >= 2 * len(tainted[v]):
-                            corrected = corrected + 1
-                            #print('[*] @ Sensitive sink [%s] has beed corrected!' % (id))
-                            #ret = 0
-                            ret = 0  
-                        else:
-                            print('[*] @ Sensitive sink [%s] is accepting a tainted value/s [%s]!' % (id, str(v)))
-                        
-            
-                #does function untaint any of the original entries?
-                elif is_untaint(original_entries, id):
-                    
-                    if isinstance(v, tuple):
-                        taint_update.append( (id, v) )
-                    else:
-                        for t in tainted[v]:
-                            taint_update.append( (id, t) ) 
-        
-        if corrected > 0 and corrected == len(argv):
-            print('[*] @ Sensitive sink [%s] has beed corrected!' % (id))                
-        
-        return taint_update
-            
-    print("RETURNINNNINGINGIGN")
-    return [argv]
-
-# return 1 on vulnerable.
-# traverse starting on a sensitive sink upword.
-def traverse(key, sink_id):
-    """returns 1 if not what we want, aka we reach any end and no fix"""
-    global tainted
-    
-    if isinstance(key, tuple):
-        
-        # key tuple example
-        # (u'mysql_real_escape_string', u'_GET["username"]')  
-        if is_untaint_for_sink(key[0], sink_id):
-            return 1 + traverse(key[1], sink_id)#without passing through tuple we won't untiant
-
-        return traverse(key[1], sink_id)
-
-    elif isinstance(key, basestring):
-        
-        if is_entry_point(key):  
-            return 1
-            
-            #if is_sink(key, sink_id):
-                #return 1
-            
-        else:
-            for v in tainted[key]:
-                return traverse(v, sink_id)
-        
-    return 0
-
-def assign_handle(child):
-    global tainted
-    #we know we got an assign kind object
-    rval = descend(child['right'])#this descent guarantees that it will populated tainted before lvalue check
-    lval = descend(child['left'])
-    operator = child['operator']
-    
-
-    if rval is not None:
-        rval = rval if isinstance(rval, list) else [rval]
-    if lval is not None:
-        lval = lval if isinstance(lval, list) else [lval]
-    
-    #   could be .= *= += -= &=
-    #   if is assign with an operator other than an '=' sign.
-    #   if operator != '=':
-    #
-    #   collect q into q
-    #   $q = $_GET["user"];
-    #   $q = $q.$u; 
-    
-    if operator != "=":
-        for v in lval:
-            if v in tainted and rval is not None:
-                rval = set().union(tainted[v], rval)
-    
-    if rval is not None:   
-        #take all right tainted values or entry points and add them to lval's list  
-        tainted_by = []
-        
-        for v in rval:
-            #only propagate tainted values and tuples
-            if isinstance(v, tuple):
-                tainted_by.append(v)
-            #removed elif (v and v not in lval):
-            elif (v):
-                if is_entry_point(v):
-                    tainted_by.append(v)
-                elif v in tainted:
-                    tainted_by.extend(tainted[v])
-                
-        
-        if len(tainted_by) > 0:
-            tainted[lval[0]] = tainted_by
-            return lval
-        
-        #  we got here means no tainted values being assigned to it.
-        #  remove it from tanted list because
-        #  an assign to no tainted values rewrites it.
-        if lval[0] in tainted:
-            del tainted[lval[0]]     
-        
-    return lval
-
-#returns if entry point like: $_GET['name'] doesnt return if $a[1] normal lookup
-def offsetlookup_handle(child):
-    w = child['what']
-    o = child['offset']
-    if w and o:
-        p1 = w['name']
-        if '$'+p1 in entry_point_names:
-            p2 = o['value']
-            ok = o['kind']
-            if ok == 'string':
-                return p1+'["'+p2+'"]'
-            else:
-                return p1+'['+p2+']'
-    return 0
-
-
-def goto(x):
-    #what are we looking for?
-    #collect adjacent properties in json array
-    #if its a call we need to get it's arguments
-    return {
-        'call': ['arguments'],
-        'bin': ['left','right'],
-        'assign': ['left','right'],
-        'offsetlookup':['what', 'offset'], # we can ignore offset because just knowing its a _GET is enought to know that its a tainted value, 'offset'],
-        'variable':['name'],
-        'encapsed':['value'],
-        'if': ['test', 'body', 'alternate'],
-        'block':['children'],
-        'while':4,
-        'do':5,
-        'global':['name'],#name?
-        'parenthesis':['inner'],
-        
-        'what':['name']#_POST, varname, etc
-        #'left':['name']
-    }.get(x, 9)    # 9 is default if x not found
-
 def main():
+
     init(sys.argv[1:])
 
 
